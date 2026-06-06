@@ -1,0 +1,61 @@
+{
+  "name": "S3 Offer · 1 · Schedule meeting bot (Cloud)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "schedule-bot",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "trg-schedule",
+      "name": "Schedule request (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 300],
+      "notes": "POST {meetingUrl, client:{company,contactName,contactEmail,industry}}"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://us-west-2.recall.ai/api/v1/bot/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"meeting_url\": $json.body.meetingUrl, \"bot_name\": \"S3 Tech Notetaker\", \"recording_config\": { \"transcript\": { \"provider\": { \"meeting_captions\": {} } } }, \"metadata\": $json.body.client } }}",
+        "options": {}
+      },
+      "id": "act-recall",
+      "name": "Recall.ai · send bot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 300],
+      "credentials": { "httpHeaderAuth": { "id": "REPLACE_RECALL", "name": "Recall API" } },
+      "notes": "Credential 'Recall API' = Header Auth: Name 'Authorization', Value 'Token <recall key>'."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"botId\": $json.id } }}",
+        "options": {}
+      },
+      "id": "resp",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [780, 300]
+    }
+  ],
+  "connections": {
+    "Schedule request (Webhook)": { "main": [[{ "node": "Recall.ai · send bot", "type": "main", "index": 0 }]] },
+    "Recall.ai · send bot": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

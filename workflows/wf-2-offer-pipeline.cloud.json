@@ -1,0 +1,298 @@
+{
+  "name": "S3 Offer · 2 · Meeting → signable offer (Cloud)",
+  "nodes": [
+    {
+      "parameters": { "httpMethod": "POST", "path": "recall-complete", "options": {} },
+      "id": "trg-recall",
+      "name": "Recall complete (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 180],
+      "notes": "Register this URL in Recall.ai dashboard for transcript.done / bot.done."
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://us-west-2.recall.ai/api/v1/bot/{{ $json.body.data.bot_id || $json.body.bot_id }}/transcript/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "recall-fetch",
+      "name": "Recall · fetch transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [420, 180],
+      "credentials": { "httpHeaderAuth": { "id": "REPLACE_RECALL", "name": "Recall API" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('Recall complete (Webhook)').first().json.body || {};\nconst meta = (body.data && body.data.metadata) || body.metadata || {};\nlet text = '';\nconst segs = Array.isArray($json) ? $json : ($json.transcript || []);\ntry { for (const s of segs) { const spk = s.speaker || (s.participant && s.participant.name) || 'Speaker'; const words = (s.words || []).map(w => w.text).join(' '); text += spk + ': ' + words + '\\n'; } } catch (e) {}\nif (!text) text = JSON.stringify($json);\nconst header = 'Known client: company=' + (meta.company||'') + ', contact=' + (meta.contactName||'') + ', email=' + (meta.contactEmail||'') + ', industry=' + (meta.industry||'') + '\\n\\n';\nreturn [{ json: { transcript: header + text, source: 'recall', date: new Date().toISOString().slice(0,10) } }];"
+      },
+      "id": "norm-recall",
+      "name": "Normalize: Recall",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [640, 180]
+    },
+    {
+      "parameters": {
+        "formTitle": "New meeting → offer",
+        "formDescription": "Paste a transcript / notes from any meeting (Teams, Zoom, Meet, phone) and we'll draft the offer.",
+        "formFields": { "values": [
+          { "fieldLabel": "Client company", "requiredField": true },
+          { "fieldLabel": "Contact name", "requiredField": true },
+          { "fieldLabel": "Contact email", "requiredField": true },
+          { "fieldLabel": "Industry", "requiredField": false },
+          { "fieldLabel": "Transcript or notes", "fieldType": "textarea", "requiredField": true }
+        ] },
+        "options": {}
+      },
+      "id": "trg-form",
+      "name": "Paste / Upload (Form)",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.1,
+      "position": [200, 460],
+      "webhookId": "new-meeting"
+    },
+    {
+      "parameters": {
+        "jsCode": "const f = $json;\nconst header = 'Known client: company=' + (f['Client company']||'') + ', contact=' + (f['Contact name']||'') + ', email=' + (f['Contact email']||'') + ', industry=' + (f['Industry']||'') + '\\n\\n';\nreturn [{ json: { transcript: header + (f['Transcript or notes']||''), source: 'paste', date: new Date().toISOString().slice(0,10) } }];"
+      },
+      "id": "norm-form",
+      "name": "Normalize: Form",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [640, 460]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [
+          { "name": "anthropic-version", "value": "2023-06-01" },
+          { "name": "content-type", "value": "application/json" }
+        ] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"model\": \"claude-haiku-4-5\", \"max_tokens\": 2000, \"system\": \"You extract structured discovery notes from a sales meeting transcript for S3 Tech. Return ONLY a JSON object: {\\\"client\\\":{\\\"company\\\":\\\"\\\",\\\"contactName\\\":\\\"\\\",\\\"contactEmail\\\":\\\"\\\",\\\"industry\\\":\\\"\\\"},\\\"meeting\\\":{\\\"summary\\\":\\\"\\\",\\\"painPoints\\\":[],\\\"goals\\\":[],\\\"constraints\\\":[],\\\"budgetSignals\\\":\\\"\\\"}}. Use only facts in the transcript; unknown = empty. Never invent names, emails, or budgets. No markdown.\", \"messages\": [ { \"role\": \"user\", \"content\": $json.transcript } ] } }}",
+        "options": {}
+      },
+      "id": "llm-extract",
+      "name": "Extract (Haiku · fast)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 320],
+      "credentials": { "httpHeaderAuth": { "id": "REPLACE_ANTHROPIC", "name": "Anthropic API" } },
+      "notes": "Credential 'Anthropic API' = Header Auth: Name 'x-api-key', Value '<anthropic key>'."
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = ($json.content && $json.content[0] && $json.content[0].text) || '';\nconst cleaned = raw.replace(/^```(json)?/i,'').replace(/```\\s*$/,'').trim();\nreturn [{ json: { discovery: JSON.parse(cleaned) } }];"
+      },
+      "id": "parse-extract",
+      "name": "Parse discovery",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [
+          { "name": "anthropic-version", "value": "2023-06-01" },
+          { "name": "content-type", "value": "application/json" }
+        ] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"model\": \"claude-opus-4-8\", \"max_tokens\": 4000, \"system\": \"You are a senior solutions consultant at S3 Tech. From the discovery JSON, produce a personalized service offer. Return ONLY a JSON object with keys client, meeting, offer. Carry client and meeting through. offer must include: title, executiveSummary (2-3 paragraphs), objectives[], scope[] (name, description, deliverables[]), timeline[] (phase, duration, milestones[]), pricing (model, currency EUR, lineItems[{item,quantity,unitPrice,total}], subtotal, taxRate 0.20, tax, total — numbers MUST add up), team[] (role, name empty, bio), assumptions[], terms, validUntil (meeting date + 30 days). No markdown, valid JSON only.\", \"messages\": [ { \"role\": \"user\", \"content\": (\"Discovery notes:\\n\" + JSON.stringify($json.discovery)) } ] } }}",
+        "options": {}
+      },
+      "id": "llm-offer",
+      "name": "Synthesize offer (Opus · smart)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 320],
+      "credentials": { "httpHeaderAuth": { "id": "REPLACE_ANTHROPIC", "name": "Anthropic API" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = ($json.content && $json.content[0] && $json.content[0].text) || '';\nconst cleaned = raw.replace(/^```(json)?/i,'').replace(/```\\s*$/,'').trim();\nreturn [{ json: JSON.parse(cleaned) }];"
+      },
+      "id": "parse-offer",
+      "name": "Parse offer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "const draft = $json;\nconst resumeUrl = $execution.resumeUrl;\nconst payload = JSON.stringify({ draft, resumeUrl });\nconst b64 = Buffer.from(payload, 'utf8').toString('base64').replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'');\nconst link = 'https://s3-offer-editor-app.vercel.app/#' + b64;\nreturn [{ json: { reviewLink: link, ownerEmail: 'ytiemani@zohomail.com', clientCompany: (draft.client && draft.client.company) || '' } }];"
+      },
+      "id": "build-link",
+      "name": "Build review link",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1760, 320],
+      "notes": "Editor URL baked in. Change ownerEmail to route reviews to the right service owner."
+    },
+    {
+      "parameters": {
+        "fromEmail": "ytiemani@zohomail.com",
+        "toEmail": "={{ $json.ownerEmail }}",
+        "subject": "=Review offer for {{ $json.clientCompany }}",
+        "emailFormat": "html",
+        "html": "=<p>A new draft offer for <b>{{ $json.clientCompany }}</b> is ready for review.</p><p>Edit anything you like, then approve to send the signable PDF to the client:</p><p><a href=\"{{ $json.reviewLink }}\">Review &amp; edit the offer →</a></p>",
+        "options": {}
+      },
+      "id": "email-owner",
+      "name": "Email owner the review link",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1980, 320],
+      "credentials": { "smtp": { "id": "REPLACE_SMTP", "name": "Zoho SMTP" } },
+      "notes": "Credential 'Zoho SMTP' = SMTP: smtp.zoho.com:587, user ytiemani@zohomail.com, the app password."
+    },
+    {
+      "parameters": { "resume": "webhook", "options": {} },
+      "id": "wait",
+      "name": "Wait for owner approval",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2200, 320],
+      "webhookId": "offer-approval"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nif (!body.approved) { throw new Error('Offer was not approved.'); }\nreturn [{ json: { offer: body.offer, html: body.html || '' } }];"
+      },
+      "id": "use-edited",
+      "name": "Use edited offer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2420, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdfshift.io/v3/convert/pdf",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "Content-Type", "value": "application/json" } ] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"source\": $json.html, \"format\": \"A4\", \"sandbox\": false } }}",
+        "options": { "response": { "response": { "responseFormat": "file", "outputPropertyName": "data" } } }
+      },
+      "id": "pdfshift",
+      "name": "Render PDF (PDFShift)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2640, 320],
+      "credentials": { "httpBasicAuth": { "id": "REPLACE_PDFSHIFT", "name": "PDFShift API" } },
+      "notes": "Credential 'PDFShift API' = Basic Auth: User 'api', Password '<pdfshift api key>'. Renders the offer HTML to an A4 PDF (binary 'data'). Set sandbox:true while testing to avoid spending credits (adds a watermark)."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://app.documenso.com/api/v1/documents",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "Content-Type", "value": "application/json" } ] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"title\": ($('Use edited offer').item.json.offer.offer.title || 'S3 Tech proposal'), \"recipients\": [ { \"name\": $('Use edited offer').item.json.offer.client.contactName, \"email\": $('Use edited offer').item.json.offer.client.contactEmail, \"role\": \"SIGNER\" } ] } }}",
+        "options": {}
+      },
+      "id": "doc-create",
+      "name": "Documenso · create document",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2860, 320],
+      "credentials": { "httpHeaderAuth": { "id": "REPLACE_DOCUMENSO", "name": "Documenso API" } },
+      "notes": "Credential 'Documenso API' = Header Auth: Name 'Authorization', Value 'Bearer <documenso token>'. Returns {documentId, uploadUrl} — confirm field names vs your Documenso version."
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $json.uploadUrl }}",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "Content-Type", "value": "application/pdf" } ] },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "id": "doc-upload",
+      "name": "Documenso · upload PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3080, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://app.documenso.com/api/v1/documents/{{ $('Documenso · create document').item.json.documentId }}/send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "Content-Type", "value": "application/json" } ] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"sendEmail\": true } }}",
+        "options": {}
+      },
+      "id": "doc-send",
+      "name": "Documenso · send for signature",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3300, 320],
+      "credentials": { "httpHeaderAuth": { "id": "REPLACE_DOCUMENSO", "name": "Documenso API" } }
+    },
+    {
+      "parameters": {
+        "fromEmail": "ytiemani@zohomail.com",
+        "toEmail": "ytiemani@zohomail.com",
+        "subject": "=Offer sent for signature · {{ $('Use edited offer').item.json.offer.client.company }}",
+        "emailFormat": "html",
+        "html": "=<p>The signable offer for <b>{{ $('Use edited offer').item.json.offer.client.company }}</b> has been sent to {{ $('Use edited offer').item.json.offer.client.contactEmail }} via Documenso.</p>",
+        "options": {}
+      },
+      "id": "notify",
+      "name": "Notify owner (sent)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [3520, 320],
+      "credentials": { "smtp": { "id": "REPLACE_SMTP", "name": "Zoho SMTP" } }
+    }
+  ],
+  "connections": {
+    "Recall complete (Webhook)": { "main": [[{ "node": "Recall · fetch transcript", "type": "main", "index": 0 }]] },
+    "Recall · fetch transcript": { "main": [[{ "node": "Normalize: Recall", "type": "main", "index": 0 }]] },
+    "Normalize: Recall": { "main": [[{ "node": "Extract (Haiku · fast)", "type": "main", "index": 0 }]] },
+    "Paste / Upload (Form)": { "main": [[{ "node": "Normalize: Form", "type": "main", "index": 0 }]] },
+    "Normalize: Form": { "main": [[{ "node": "Extract (Haiku · fast)", "type": "main", "index": 0 }]] },
+    "Extract (Haiku · fast)": { "main": [[{ "node": "Parse discovery", "type": "main", "index": 0 }]] },
+    "Parse discovery": { "main": [[{ "node": "Synthesize offer (Opus · smart)", "type": "main", "index": 0 }]] },
+    "Synthesize offer (Opus · smart)": { "main": [[{ "node": "Parse offer", "type": "main", "index": 0 }]] },
+    "Parse offer": { "main": [[{ "node": "Build review link", "type": "main", "index": 0 }]] },
+    "Build review link": { "main": [[{ "node": "Email owner the review link", "type": "main", "index": 0 }]] },
+    "Email owner the review link": { "main": [[{ "node": "Wait for owner approval", "type": "main", "index": 0 }]] },
+    "Wait for owner approval": { "main": [[{ "node": "Use edited offer", "type": "main", "index": 0 }]] },
+    "Use edited offer": { "main": [[{ "node": "Render PDF (PDFShift)", "type": "main", "index": 0 }]] },
+    "Render PDF (PDFShift)": { "main": [[{ "node": "Documenso · create document", "type": "main", "index": 0 }]] },
+    "Documenso · create document": { "main": [[{ "node": "Documenso · upload PDF", "type": "main", "index": 0 }]] },
+    "Documenso · upload PDF": { "main": [[{ "node": "Documenso · send for signature", "type": "main", "index": 0 }]] },
+    "Documenso · send for signature": { "main": [[{ "node": "Notify owner (sent)", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}
