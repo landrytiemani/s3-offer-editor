@@ -1,0 +1,128 @@
+{
+  "name": "S3 Offer · 3 · AI edit + approve (Cloud)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-edit",
+        "responseMode": "responseNode",
+        "options": { "allowedOrigins": "*" }
+      },
+      "id": "wh",
+      "name": "Editor webhook (CORS)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 320],
+      "webhookId": "ai-edit",
+      "notes": "Called by the offer editor. Body: {action:'revise'|'approve', offer, instructions?, html?, resumeUrl?}. CORS open so the Vercel editor can call it."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "approve",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "iff",
+      "name": "Is approve?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.body.resumeUrl }}",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "Content-Type", "value": "application/json" } ] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"approved\": true, \"offer\": $json.body.offer, \"html\": $json.body.html } }}",
+        "options": {}
+      },
+      "id": "resume",
+      "name": "Resume main workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 220],
+      "notes": "Server-side POST to the paused wf-2 Wait node (no CORS, since this is server→server)."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true } }}",
+        "options": { "responseHeaders": { "entries": [ { "name": "Access-Control-Allow-Origin", "value": "*" } ] } }
+      },
+      "id": "resp-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [940, 220]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [
+          { "name": "anthropic-version", "value": "2023-06-01" },
+          { "name": "content-type", "value": "application/json" }
+        ] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"model\": \"claude-opus-4-8\", \"max_tokens\": 4000, \"system\": \"You are editing an S3 Tech service offer. You receive the current offer as JSON and the service owner's free-text edit instructions. Apply the instructions to the offer precisely and intelligently — figure out which fields to change (title, executiveSummary, objectives, scope, timeline, pricing line items + recompute subtotal/tax/total so they stay consistent, team, terms, validUntil). Keep everything the owner did NOT ask to change exactly as-is. Return ONLY the full updated offer JSON object with keys client, meeting, offer. No markdown, valid JSON only.\", \"messages\": [ { \"role\": \"user\", \"content\": (\"CURRENT OFFER JSON:\\n\" + JSON.stringify($json.body.offer) + \"\\n\\nOWNER INSTRUCTIONS:\\n\" + ($json.body.instructions || \"\")) } ] } }}",
+        "options": {}
+      },
+      "id": "opus",
+      "name": "Apply edits (Opus)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 420],
+      "credentials": { "httpHeaderAuth": { "id": "REPLACE_ANTHROPIC", "name": "Anthropic API" } },
+      "notes": "Credential 'Anthropic API' (Header Auth, x-api-key)."
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = ($json.content && $json.content[0] && $json.content[0].text) || '';\nconst cleaned = raw.replace(/^```(json)?/i,'').replace(/```\\s*$/,'').trim();\nreturn [{ json: { offer: JSON.parse(cleaned) } }];"
+      },
+      "id": "parse",
+      "name": "Parse revised offer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 420]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"offer\": $json.offer } }}",
+        "options": { "responseHeaders": { "entries": [ { "name": "Access-Control-Allow-Origin", "value": "*" } ] } }
+      },
+      "id": "resp-offer",
+      "name": "Respond revised",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1120, 420]
+    }
+  ],
+  "connections": {
+    "Editor webhook (CORS)": { "main": [[{ "node": "Is approve?", "type": "main", "index": 0 }]] },
+    "Is approve?": { "main": [
+      [{ "node": "Resume main workflow", "type": "main", "index": 0 }],
+      [{ "node": "Apply edits (Opus)", "type": "main", "index": 0 }]
+    ] },
+    "Resume main workflow": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] },
+    "Apply edits (Opus)": { "main": [[{ "node": "Parse revised offer", "type": "main", "index": 0 }]] },
+    "Parse revised offer": { "main": [[{ "node": "Respond revised", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

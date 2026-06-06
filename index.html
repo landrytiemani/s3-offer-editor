@@ -32,6 +32,11 @@
   .approve{background:var(--navy);color:#fff}
   .approve:hover{background:#0c1421}
   .approve:disabled{opacity:.45;cursor:not-allowed}
+  .ai-box{border:1.5px solid var(--red);border-radius:12px;background:#fff6f6}
+  .ai-box legend{color:var(--red)}
+  .ai-apply{background:var(--red);color:#fff;padding:9px 16px}
+  .ai-apply:hover{background:#a81714}
+  .ai-apply:disabled{opacity:.5;cursor:not-allowed}
   .ghost{background:#eef1f5;color:var(--navy)}
   .ghost:hover{background:#e2e7ee}
   /* ---- layout ---- */
@@ -88,6 +93,15 @@
 
 <div id="app" class="wrap">
   <div class="pane edit">
+    <fieldset class="ai-box">
+      <legend>✦ Ask AI to revise</legend>
+      <p class="hint" style="margin-top:0">Describe the changes in plain language — the AI figures out where to apply them and keeps the rest intact. e.g. <i>"Lower total by 10%, add a 2-week training phase, make the summary warmer."</i></p>
+      <textarea id="ai_instructions" placeholder="What should change?"></textarea>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+        <button class="ai-apply" id="aiBtn" onclick="applyAI()">✦ Apply with AI</button>
+        <span class="hint" id="aiStatus"></span>
+      </div>
+    </fieldset>
     <div id="formMode">
       <fieldset><legend>Client</legend>
         <label>Company</label><input id="f_company">
@@ -128,7 +142,9 @@
 </div>
 
 <script>
-let DATA = null, RESUME_URL = null, mode = "form";
+// wf-3 (AI edit + approve) CORS webhook. Production URL is deterministic from the path.
+const AI_URL_DEFAULT = "https://ytiemani.app.n8n.cloud/webhook/ai-edit";
+let DATA = null, RESUME_URL = null, AI_URL = AI_URL_DEFAULT, mode = "form";
 
 async function boot(){
   if(location.hash.length>1){
@@ -137,6 +153,7 @@ async function boot(){
       const payload = JSON.parse(atob(raw.replace(/-/g,'+').replace(/_/g,'/')));
       DATA = payload.draft || payload;
       RESUME_URL = payload.resumeUrl || null;
+      if(payload.aiUrl) AI_URL = payload.aiUrl;
     }catch(e){ DATA = blank(); }
   } else {
     // Demo mode: opened without a workflow link — load the bundled sample so the
@@ -206,14 +223,38 @@ function setMode(m){
   else fillFormQuiet();
 }
 
+// Natural-language edits → wf-3 Opus applies them → revised offer back into the editor.
+async function applyAI(){
+  const instr = document.getElementById('ai_instructions').value.trim();
+  if(!instr){ document.getElementById('aiStatus').textContent='Type an instruction first.'; return; }
+  try{ collect(); }catch(e){ alert('Fix the JSON first: '+e.message); return; }
+  const btn=document.getElementById('aiBtn'), st=document.getElementById('aiStatus');
+  btn.disabled=true; st.className='hint'; st.textContent='✦ Thinking…';
+  try{
+    const res = await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'revise', offer:DATA, instructions:instr})});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    if(!data.offer) throw new Error('No revised offer returned');
+    DATA = data.offer;
+    fillFormQuiet();
+    document.getElementById('rawJson').value = JSON.stringify(DATA,null,2);
+    compile();
+    document.getElementById('ai_instructions').value='';
+    st.textContent='Applied ✓ — review the preview, then approve or refine further.';
+  }catch(e){ st.className='hint err'; st.textContent='AI edit failed: '+e.message; }
+  finally{ btn.disabled=false; }
+}
+
 async function approve(){
   if(!RESUME_URL){ alert('This studio was opened without a workflow link, so there is nothing to submit. Open it from the review email.'); return; }
   try{ collect(); }catch(e){ alert('Fix the JSON before approving: '+e.message); return; }
   const btn=document.getElementById('approveBtn'); btn.disabled=true; btn.textContent='Sending…';
   try{
     const html = window.OfferRenderer.render(DATA);
-    const res = await fetch(RESUME_URL,{method:'POST',headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({approved:true, offer:DATA, html})});
+    // Routed through wf-3 (CORS) which resumes the paused main workflow server-side.
+    const res = await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'approve', offer:DATA, html, resumeUrl:RESUME_URL})});
     if(!res.ok) throw new Error('HTTP '+res.status);
     document.getElementById('app').style.display='none';
     document.querySelector('.sub').style.display='none';
