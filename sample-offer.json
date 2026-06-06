@@ -1,0 +1,53 @@
+{
+  "client": {
+    "company": "Northwind Logistics",
+    "contactName": "Mara Dupont",
+    "contactEmail": "mara.dupont@northwind.example",
+    "industry": "Freight & logistics"
+  },
+  "meeting": {
+    "date": "2026-06-06",
+    "source": "paste",
+    "summary": "Northwind runs 40 regional depots on a legacy on-prem TMS. Dispatchers re-key orders by hand, there is no real-time fleet visibility, and month-end reporting takes a week. They want a unified platform before peak season in Q4.",
+    "painPoints": ["Manual order re-keying across 40 depots", "No real-time fleet visibility", "Month-end reporting takes 5+ days"],
+    "goals": ["Single source of truth for orders", "Live tracking for dispatchers and customers", "Same-day operational reporting"],
+    "constraints": ["Go-live before Q4 peak", "Must integrate with existing SAP finance"],
+    "budgetSignals": "Indicated a six-figure budget for year one."
+  },
+  "offer": {
+    "title": "A unified, real-time logistics platform — live before peak season",
+    "executiveSummary": "Northwind's dispatchers lose hours every day re-keying orders and chasing trucks across 40 depots, while leadership waits a week for numbers that should be instant. That friction caps how much volume you can take on — exactly when Q4 demands more.\n\nS3 Tech will replace the manual seams with one connected platform: orders flow in once, fleet status is live on every dispatcher's screen, and operational reporting closes same-day. We deliver it in phased releases so value lands well before peak.",
+    "objectives": ["Eliminate manual order re-keying across all 40 depots", "Give dispatchers and customers live fleet visibility", "Cut month-end reporting from 5 days to same-day", "Go live ahead of Q4 peak with zero finance disruption"],
+    "scope": [
+      { "name": "Unified order intake", "description": "A single ingestion layer that captures orders from web, EDI, and email into one validated pipeline — no re-keying.", "deliverables": ["Order intake API + depot UI", "EDI & email connectors", "Validation & dedupe rules"] },
+      { "name": "Real-time fleet visibility", "description": "Live tracking surfaced to dispatchers and a customer-facing portal.", "deliverables": ["Telematics ingestion", "Dispatcher live map", "Customer tracking portal"] },
+      { "name": "Same-day reporting", "description": "An operational data layer feeding dashboards and the SAP finance handoff.", "deliverables": ["Operational data warehouse", "Executive dashboards", "Certified SAP finance export"] }
+    ],
+    "timeline": [
+      { "phase": "Discovery & foundations", "duration": "4 weeks", "milestones": ["Environment + integrations mapped", "Order intake MVP"] },
+      { "phase": "Core build", "duration": "8 weeks", "milestones": ["Order intake live in 5 pilot depots", "Live tracking beta"] },
+      { "phase": "Rollout & reporting", "duration": "6 weeks", "milestones": ["All 40 depots live", "Same-day reporting certified"] }
+    ],
+    "pricing": {
+      "model": "Fixed price",
+      "currency": "EUR",
+      "lineItems": [
+        { "item": "Discovery & foundations", "quantity": 1, "unitPrice": 28000, "total": 28000 },
+        { "item": "Core platform build", "quantity": 1, "unitPrice": 96000, "total": 96000 },
+        { "item": "Rollout, training & reporting", "quantity": 1, "unitPrice": 44000, "total": 44000 }
+      ],
+      "subtotal": 168000,
+      "taxRate": 0.20,
+      "tax": 33600,
+      "total": 201600
+    },
+    "team": [
+      { "role": "Engagement lead", "name": "", "bio": "Owns delivery, your single point of contact." },
+      { "role": "Solution architect", "name": "", "bio": "Designs the platform and SAP integration." },
+      { "role": "Lead engineer", "name": "", "bio": "Drives the build across all three workstreams." }
+    ],
+    "assumptions": ["SAP finance exposes a supported integration endpoint", "Depot staff available for 2 half-day training sessions", "Telematics provider offers an accessible API"],
+    "terms": "30% on signature, 40% at core build acceptance, 30% on final rollout. Net 30. Pricing valid for 30 days.",
+    "validUntil": "2026-07-06"
+  }
+}

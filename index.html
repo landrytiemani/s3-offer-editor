@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>S3 Tech · Offer studio</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<!-- S3 Tech brand fonts: Sofia Pro (Typekit) + Lato -->
+<link rel="stylesheet" href="https://use.typekit.net/snu0kzf.css">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="render.js"></script>
+<style>
+  :root{
+    --red:#c31e1c; --red2:#eb3e15; --navy:#141e30; --muted:#6c757d;
+    --line:#dee2e6; --bg:#f8f9fc; --sofia:'sofia-pro','Lato',Segoe UI,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Lato','sofia-pro',-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    color:var(--navy);background:var(--bg)}
+  /* ---- S3-style top bar ---- */
+  header{background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(20,30,48,.03);
+    padding:0 28px;height:64px;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:20}
+  .logo{display:flex;align-items:center}
+  .logo img{height:38px;display:block}
+  nav{display:flex;gap:22px;margin-left:14px;font-family:var(--sofia);font-weight:700;font-size:15px}
+  nav span{color:var(--navy);opacity:.85}
+  nav span.active{color:var(--red)}
+  .spacer{flex:1}
+  button{font:inherit;font-family:var(--sofia);border:0;border-radius:8px;padding:10px 18px;font-weight:800;cursor:pointer;transition:.15s}
+  .compile{background:var(--red);color:#fff;font-size:15px;box-shadow:0 6px 16px rgba(195,30,28,.28)}
+  .compile:hover{background:#a81714}
+  .approve{background:var(--navy);color:#fff}
+  .approve:hover{background:#0c1421}
+  .approve:disabled{opacity:.45;cursor:not-allowed}
+  .ghost{background:#eef1f5;color:var(--navy)}
+  .ghost:hover{background:#e2e7ee}
+  /* ---- layout ---- */
+  .sub{background:#fff;border-bottom:1px solid var(--line);padding:10px 28px;display:flex;align-items:center;gap:14px}
+  .sub .h{font-family:var(--sofia);font-weight:800;color:var(--navy)}
+  .sub .client{color:var(--muted);font-size:14px}
+  .tabs{display:flex;gap:6px;margin-left:auto}
+  .tabs button{background:#eef1f5;color:var(--muted);padding:7px 14px;font-size:14px}
+  .tabs button.on{background:var(--navy);color:#fff}
+  .wrap{display:grid;grid-template-columns:minmax(400px,0.95fr) minmax(480px,1.05fr);height:calc(100vh - 64px - 53px)}
+  .pane{overflow:auto}
+  .pane.edit{border-right:1px solid var(--line);background:#fff;padding:22px 26px}
+  .pane.out{background:#eceff3;padding:24px;display:flex;justify-content:center}
+  label{display:block;font-family:var(--sofia);font-size:12px;font-weight:800;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.05em;margin:14px 0 5px}
+  input,textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff;color:var(--navy)}
+  input:focus,textarea:focus{outline:0;border-color:var(--red);box-shadow:0 0 0 3px rgba(195,30,28,.12)}
+  textarea{min-height:84px;resize:vertical;line-height:1.5}
+  fieldset{border:1px solid var(--line);border-radius:12px;padding:8px 16px 18px;margin:18px 0}
+  legend{font-family:var(--sofia);font-weight:900;padding:0 8px;color:var(--navy);font-size:15px}
+  .hint{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .err{color:var(--red);font-weight:700}
+  .raw{display:none}
+  .raw textarea{min-height:72vh;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+  /* output framed like a sheet of paper */
+  .sheet{width:794px;max-width:100%;background:#fff;border-radius:6px;box-shadow:0 10px 40px rgba(20,30,48,.16);overflow:hidden}
+  iframe{width:794px;height:1123px;border:0;background:#fff;display:block}
+  .stale{position:fixed;right:26px;bottom:22px;background:var(--navy);color:#fff;font-family:var(--sofia);
+    font-weight:700;font-size:13px;padding:10px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.2);display:none;z-index:30}
+  .done{display:none;text-align:center;padding:90px 24px}
+  .done .mark{width:64px;height:64px;border-radius:14px;background:var(--red);color:#fff;font-family:var(--sofia);
+    font-weight:900;font-size:26px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:18px}
+  .done h1{font-family:var(--sofia);font-size:30px;color:var(--navy);margin:.2em 0}
+  .done p{color:var(--muted);max-width:520px;margin:0 auto}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><img src="s3-logo.svg" alt="S3 Technologies"></div>
+  <nav><span class="active">Offer studio</span><span>Services</span><span>Clients</span></nav>
+  <span class="spacer"></span>
+  <button class="compile" onclick="compile()">⟳ Compile</button>
+  <button class="approve" id="approveBtn" onclick="approve()">Approve &amp; send to client →</button>
+</header>
+
+<div class="sub">
+  <span class="h" id="docTitle">Offer</span>
+  <span class="client" id="docClient"></span>
+  <div class="tabs">
+    <button id="tabForm" class="on" onclick="setMode('form')">Form</button>
+    <button id="tabRaw" onclick="setMode('raw')">Raw JSON</button>
+  </div>
+</div>
+
+<div id="app" class="wrap">
+  <div class="pane edit">
+    <div id="formMode">
+      <fieldset><legend>Client</legend>
+        <label>Company</label><input id="f_company">
+        <label>Contact name</label><input id="f_contactName">
+        <label>Contact email</label><input id="f_contactEmail">
+      </fieldset>
+      <fieldset><legend>Offer</legend>
+        <label>Title</label><input id="f_title">
+        <label>Executive summary</label><textarea id="f_exec"></textarea>
+        <label>Objectives (one per line)</label><textarea id="f_objectives"></textarea>
+      </fieldset>
+      <fieldset><legend>Scope · timeline · pricing · team</legend>
+        <p class="hint">These are structured arrays — edit them precisely in the
+        <b>Raw JSON</b> tab. The numbers in pricing must add up. Hit
+        <b>Compile</b> any time to refresh the live preview from your inputs.
+        Nothing is sent to the client until you click <b>Approve</b>.</p>
+      </fieldset>
+    </div>
+    <div id="rawMode" class="raw">
+      <label>Full offer JSON (offer.schema.json)</label>
+      <textarea id="rawJson" oninput="markStale()"></textarea>
+      <div id="jsonErr" class="hint"></div>
+    </div>
+  </div>
+
+  <div class="pane out">
+    <div class="sheet"><iframe id="preview"></iframe></div>
+  </div>
+</div>
+
+<div class="stale" id="staleBadge">Inputs changed — click ⟳ Compile to refresh</div>
+
+<div id="doneScreen" class="done">
+  <div class="mark">S3</div>
+  <h1>Offer approved</h1>
+  <p>It's been sent back to the workflow — the branded PDF is rendering and the
+  client will receive a signable document shortly. You can close this tab.</p>
+</div>
+
+<script>
+let DATA = null, RESUME_URL = null, mode = "form";
+
+async function boot(){
+  if(location.hash.length>1){
+    try{
+      const raw = decodeURIComponent(location.hash.slice(1));
+      const payload = JSON.parse(atob(raw.replace(/-/g,'+').replace(/_/g,'/')));
+      DATA = payload.draft || payload;
+      RESUME_URL = payload.resumeUrl || null;
+    }catch(e){ DATA = blank(); }
+  } else {
+    // Demo mode: opened without a workflow link — load the bundled sample so the
+    // studio is explorable. In production the editor is always opened with a hash.
+    try{ DATA = await (await fetch('sample-offer.json')).json(); }
+    catch(e){ DATA = blank(); }
+  }
+  fillForm(); compile();
+}
+function blank(){ return { client:{company:"",contactName:"",contactEmail:""}, meeting:{}, offer:{title:"",executiveSummary:"",objectives:[],scope:[],timeline:[],pricing:{currency:"EUR",lineItems:[],total:0},team:[]} }; }
+
+function fillForm(){
+  const c=DATA.client||{},o=DATA.offer||{};
+  v('f_company',c.company);v('f_contactName',c.contactName);v('f_contactEmail',c.contactEmail);
+  v('f_title',o.title);v('f_exec',o.executiveSummary);v('f_objectives',(o.objectives||[]).join('\n'));
+  document.getElementById('rawJson').value = JSON.stringify(DATA,null,2);
+  ['f_company','f_contactName','f_contactEmail','f_title','f_exec','f_objectives']
+    .forEach(id=>document.getElementById(id).addEventListener('input',markStale));
+}
+function v(id,val){ document.getElementById(id).value = val==null?'':val; }
+function val(id){ return document.getElementById(id).value; }
+
+// Pull current inputs into DATA (form or raw, depending on active tab).
+function collect(){
+  if(mode==='raw'){
+    DATA = JSON.parse(document.getElementById('rawJson').value); // throws -> caught by compile()
+  } else {
+    DATA.client = DATA.client||{}; DATA.offer = DATA.offer||{};
+    DATA.client.company = val('f_company');
+    DATA.client.contactName = val('f_contactName');
+    DATA.client.contactEmail = val('f_contactEmail');
+    DATA.offer.title = val('f_title');
+    DATA.offer.executiveSummary = val('f_exec');
+    DATA.offer.objectives = val('f_objectives').split('\n').map(s=>s.trim()).filter(Boolean);
+    document.getElementById('rawJson').value = JSON.stringify(DATA,null,2);
+  }
+}
+
+// THE COMPILE BUTTON — refresh output from current inputs.
+function compile(){
+  const err=document.getElementById('jsonErr');
+  try{ collect(); err.textContent=''; }
+  catch(e){ err.textContent='Invalid JSON: '+e.message; err.className='hint err'; return; }
+  if(mode==='raw') fillFormQuiet();
+  document.getElementById('preview').srcdoc = window.OfferRenderer.render(DATA);
+  document.getElementById('docTitle').textContent = (DATA.offer&&DATA.offer.title)||'Offer';
+  document.getElementById('docClient').textContent = (DATA.client&&DATA.client.company)?('· '+DATA.client.company):'';
+  hideStale();
+}
+function fillFormQuiet(){
+  const c=DATA.client||{},o=DATA.offer||{};
+  v('f_company',c.company);v('f_contactName',c.contactName);v('f_contactEmail',c.contactEmail);
+  v('f_title',o.title);v('f_exec',o.executiveSummary);v('f_objectives',(o.objectives||[]).join('\n'));
+}
+
+function markStale(){ document.getElementById('staleBadge').style.display='block'; }
+function hideStale(){ document.getElementById('staleBadge').style.display='none'; }
+
+function setMode(m){
+  if(mode==='form') { try{ collect(); }catch(e){} }   // keep edits when switching
+  mode=m;
+  document.getElementById('formMode').style.display = m==='form'?'block':'none';
+  document.getElementById('rawMode').style.display  = m==='raw'?'block':'none';
+  document.getElementById('tabForm').classList.toggle('on',m==='form');
+  document.getElementById('tabRaw').classList.toggle('on',m==='raw');
+  if(m==='raw') document.getElementById('rawJson').value = JSON.stringify(DATA,null,2);
+  else fillFormQuiet();
+}
+
+async function approve(){
+  if(!RESUME_URL){ alert('This studio was opened without a workflow link, so there is nothing to submit. Open it from the review email.'); return; }
+  try{ collect(); }catch(e){ alert('Fix the JSON before approving: '+e.message); return; }
+  const btn=document.getElementById('approveBtn'); btn.disabled=true; btn.textContent='Sending…';
+  try{
+    const html = window.OfferRenderer.render(DATA);
+    const res = await fetch(RESUME_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({approved:true, offer:DATA, html})});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    document.getElementById('app').style.display='none';
+    document.querySelector('.sub').style.display='none';
+    document.querySelector('header .spacer').nextElementSibling.style.display='none';
+    document.getElementById('approveBtn').style.display='none';
+    document.getElementById('doneScreen').style.display='block';
+  }catch(e){ alert('Submit failed: '+e.message); btn.disabled=false; btn.textContent='Approve & send to client →'; }
+}
+
+boot();
+</script>
+</body>
+</html>
