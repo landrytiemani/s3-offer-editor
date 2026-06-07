@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>S3 Tech · New offer intake</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="https://use.typekit.net/snu0kzf.css">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--red:#c31e1c;--red2:#eb3e15;--navy:#141e30;--muted:#6c757d;--line:#dee2e6;--bg:#f8f9fc;--sofia:'sofia-pro','Lato',Segoe UI,Arial,sans-serif}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Lato','sofia-pro',-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--navy);background:var(--bg)}
+  header{background:#fff;border-bottom:1px solid var(--line);padding:0 28px;height:64px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:10}
+  header .logo img{height:38px;display:block}
+  header .title{font-family:var(--sofia);font-weight:800;color:var(--red);font-size:15px}
+  .container{max-width:760px;margin:0 auto;padding:34px 24px 80px}
+  h1{font-family:var(--sofia);font-weight:900;font-size:28px;margin:0 0 6px}
+  .lead{color:var(--muted);margin:0 0 26px;font-size:15px}
+  /* mode tabs */
+  .modes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+  .mode{border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:14px 12px;cursor:pointer;text-align:center;transition:.15s}
+  .mode:hover{border-color:#bcc6d2}
+  .mode.on{border-color:var(--red);background:#fff6f6;box-shadow:0 6px 16px rgba(195,30,28,.12)}
+  .mode .ico{font-size:22px;line-height:1}
+  .mode .lbl{font-family:var(--sofia);font-weight:800;font-size:13px;margin-top:8px}
+  .mode .sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.3}
+  fieldset{border:1px solid var(--line);border-radius:14px;padding:8px 18px 20px;margin:0 0 18px;background:#fff}
+  legend{font-family:var(--sofia);font-weight:900;padding:0 8px;font-size:15px}
+  label{display:block;font-family:var(--sofia);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 5px}
+  input,textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff;color:var(--navy)}
+  input:focus,textarea:focus{outline:0;border-color:var(--red);box-shadow:0 0 0 3px rgba(195,30,28,.12)}
+  textarea{min-height:150px;resize:vertical;line-height:1.5}
+  input[type=file]{padding:9px;background:var(--bg)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .hint{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .mode-panel{display:none}
+  .mode-panel.on{display:block}
+  .submit{width:100%;background:var(--red);color:#fff;border:0;border-radius:10px;padding:15px;font-family:var(--sofia);font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(195,30,28,.28);transition:.15s}
+  .submit:hover{background:#a81714}
+  .submit:disabled{opacity:.5;cursor:not-allowed}
+  .status{margin-top:14px;font-size:14px;text-align:center;min-height:20px}
+  .status.err{color:var(--red);font-weight:700}
+  .status.ok{color:#0c8f78;font-weight:700}
+  .done{display:none;text-align:center;padding:70px 24px}
+  .done .mark{width:64px;height:64px;border-radius:14px;background:var(--red);color:#fff;font-family:var(--sofia);font-weight:900;font-size:26px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:18px}
+  .done h2{font-family:var(--sofia);font-size:26px;margin:.2em 0}
+  .done p{color:var(--muted);max-width:520px;margin:0 auto 18px}
+  .done button{background:var(--navy);color:#fff;border:0;border-radius:9px;padding:11px 20px;font-family:var(--sofia);font-weight:800;cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTIuMzk1IiBoZWlnaHQ9IjYyLjMxOCIgdmlld0JveD0iMCAwIDE1Mi4zOTUgNjIuMzE4Ij48ZGVmcz48Y2xpcFBhdGggaWQ9ImEiPjxwYXRoIGQ9Ik0wIDYyLjMxOGgxNTIuMzk1VjBIMHoiIGZpbGw9Im5vbmUiLz48L2NsaXBQYXRoPjwvZGVmcz48cGF0aCBkPSJNNzEuOTY0IDMzLjdhNy43NiA3Ljc2IDAgMDEtMy4xMzMgNi40MTggOC42NzYgOC42NzYgMCAwMS01LjMzMSAyLjAyM0g4LjQ2NmE3LjczMSA3LjczMSAwIDAxLTYuNTE5LTMuMTI0QTguNiA4LjYgMCAwMTAgMzMuN2g2My41di04LjQ0OUg4LjQ2NmE3LjggNy44IDAgMDEtNi40MzUtMy4xMTRBOC41NzkgOC41NzkgMCAwMTAgMTYuODMzVjguNDE4YTcuNzQzIDcuNzQzIDAgMDEzLjA0OC02LjQ4MkE4LjU0OSA4LjU0OSAwIDAxOC40NjYgMEg2My41YTcuNzI3IDcuNzI3IDAgMDE2LjQzNCAzLjA0IDguNDkzIDguNDkzIDAgMDEyLjAzMiA1LjRoLTYzLjV2OC4zNjFINjMuNWE3LjcyNSA3LjcyNSAwIDAxNi40MzQgMy4wNCA4LjQ5MyA4LjQ5MyAwIDAxMi4wMzIgNS40em04MC40MzEuMDEzYTguMzQ5IDguMzQ5IDAgMDEtMS45NDcgNS4zMSA3Ljg4MiA3Ljg4MiAwIDAxLTYuNTE3IDMuMTE4aC02My41VjMzLjdoNjMuNXYtOC40NDloLTYzLjV2LTguNDQ1aDYzLjVWOC40NDVoLTYzLjVWMGg2My41YTguNDM2IDguNDM2IDAgMDE1LjMzNCAxLjkzOSA3LjgyMyA3LjgyMyAwIDAxMy4xMzMgNi40ODl6TTYuNTk2IDUxLjkzMnYxMC4yMjdoLTEuOFY1MS45MzJILjIyM3YtMS4yNzNoMTAuOTV2MS4yNzN6bTYuNjEgMTAuMjI3di0xMS41aDEwLjEwOHYxLjI3M2gtOC4zdjMuNjg4aDcuNzMzdjEuMjU2aC03LjczNXY0LjAwNmg4LjY5NHYxLjI3N3pNMzIuMDI0IDUxLjc2YTUuNzMxIDUuNzMxIDAgMDAtMi4wMDYuMzI3IDMuODI4IDMuODI4IDAgMDAtMi4zNjMgMi4zODIgNS41NzYgNS41NzYgMCAwMC0uMyAxLjg4NSA1LjMwOSA1LjMwOSAwIDAwLjMyNiAxLjkgNC4wOTEgNC4wOTEgMCAwMDIuNDMgMi40NDQgNS40NzIgNS40NzIgMCAwMDEuOTkuMzQzIDUuMzQ5IDUuMzQ5IDAgMDAxLjQxNy0uMTc5IDQuNDE4IDQuNDE4IDAgMDAxLjE1NC0uNDk0IDQuNDY4IDQuNDY4IDAgMDAuOTIyLS43NTUgNS41MTkgNS41MTkgMCAwMC43MTktLjk2N2wxLjQ3NS42MzZhNS44NjggNS44NjggMCAwMS0uODg5IDEuMiA1LjQxNyA1LjQxNyAwIDAxLTEuMjQzLjk2MyA2LjUxIDYuNTEgMCAwMS0xLjYxNy42NDEgOC4xIDguMSAwIDAxLTIuMDE5LjIzMiA4LjIyNiA4LjIyNiAwIDAxLTIuODMyLS40NDUgNS42NDQgNS42NDQgMCAwMS0yLjAzMy0xLjI0IDUuMDU1IDUuMDU1IDAgMDEtMS4yMzEtMS44ODkgNi44MTIgNi44MTIgMCAwMS0uNDA2LTIuMzkxIDYuNTQ0IDYuNTQ0IDAgMDEuNDMtMi40MzEgNC45NzEgNC45NzEgMCAwMTEuMjU4LTEuODQ4IDUuNjQ1IDUuNjQ1IDAgMDEyLjAzOC0xLjE3NSA4LjU1NSA4LjU1NSAwIDAxMi43NjEtLjQxMiA3Ljg2OCA3Ljg2OCAwIDAxMy41NTUuNzE4IDQuNDg2IDQuNDg2IDAgMDEyLjEgMi4xMjlsLTEuNzExLjQ4OWEzLjM2IDMuMzYgMCAwMC0uNTExLS43NzkgMy4yMjYgMy4yMjYgMCAwMC0uOC0uNjU3IDQuNDQ3IDQuNDQ3IDAgMDAtMS4xMy0uNDU3IDUuODEzIDUuODEzIDAgMDAtMS40OC0uMTcxbTE3LjA5MyAxMC40di01LjMzMmgtNy4yMDZ2NS4zMzJoLTEuODA2di0xMS41aDEuODA2djQuODYzaDcuMjA2di00Ljg2M2gxLjgwNnYxMS41em0xNC4wNjIgMGwtNy4xMy05Ljc5NXEuMDE5LjQuMDQ3Ljc5Mi4wMTkuMzM0LjAzMy43MDZ0LjAxNC42NTd2Ny42NEg1NC41NHYtMTEuNWgyLjFsNy4yIDkuODU2LS4wNTctLjhxLS4wMTktLjM0My0uMDM4LS43NDd0LS4wMTktLjc3MXYtNy41MzhoMS42MjZ2MTEuNXptMTEuMTM2LjE1OWE4LjU2NSA4LjU2NSAwIDAxLTIuODg0LS40NDUgNS43IDUuNyAwIDAxLTIuMDYyLTEuMjQgNS4xNTggNS4xNTggMCAwMS0xLjIzOC0xLjg4OSA2LjcgNi43IDAgMDEtLjQxNi0yLjM5MSA2LjUxNCA2LjUxNCAwIDAxLjQzNS0yLjQzMSA0Ljk1OCA0Ljk1OCAwIDAxMS4yNzYtMS44NDggNS43OTMgNS43OTMgMCAwMTIuMDc2LTEuMTc1IDguOTg0IDguOTg0IDAgMDEyLjgzMi0uNDEyIDguODU4IDguODU4IDAgMDEyLjgyMy40MTcgNS43NTMgNS43NTMgMCAwMTIuMDcxIDEuMTgzIDUuMDEyIDUuMDEyIDAgMDExLjI3MiAxLjg1MiA2LjQ2MiA2LjQ2MiAwIDAxLjQzNSAyLjQxNSA2LjQ1OSA2LjQ1OSAwIDAxLS40NSAyLjQ0OCA1LjIyNiA1LjIyNiAwIDAxLTEuMyAxLjg4NSA1Ljg4IDUuODggMCAwMS0yLjA4IDEuMjA3IDguNTcxIDguNTcxIDAgMDEtMi43OS40MjR6bS4wMTktMTAuNTU4YTYuMTI5IDYuMTI5IDAgMDAtMi4wODkuMzI3IDQuMDIxIDQuMDIxIDAgMDAtMS41LjkzIDMuODM3IDMuODM3IDAgMDAtLjkgMS40NTIgNS42ODkgNS42ODkgMCAwMC0uMyAxLjg4NSA1LjYyOCA1LjYyOCAwIDAwLjMwNyAxLjkgMy45ODMgMy45ODMgMCAwMDIuNCAyLjQ1NiA1LjY4OCA1LjY4OCAwIDAwMi4wNTcuMzQ3IDUuOTYgNS45NiAwIDAwMi4xNTEtLjM1MSAzLjk1MSAzLjk1MSAwIDAwMS40ODUtLjk3NiAzLjkyMiAzLjkyMiAwIDAwLjg2LTEuNDg4IDYuMTU1IDYuMTU1IDAgMDAuMjc5LTEuODg1IDUuNTI2IDUuNTI2IDAgMDAtLjMwNy0xLjg4NSAzLjk0MyAzLjk0MyAwIDAwLS45MDgtMS40NTIgNC4wMzggNC4wMzggMCAwMC0xLjQ4My0uOTMzIDUuOTY2IDUuOTY2IDAgMDAtMi4wNTItLjMyN3ptOC45OCAxMC4zOTl2LTExLjVoMS44MDZ2MTAuMjIzaDYuNzMzdjEuMjc3em0xNi4zMTIuMTU5YTguNTY5IDguNTY5IDAgMDEtMi44ODQtLjQ0NSA1LjY5MSA1LjY5MSAwIDAxLTIuMDYxLTEuMjQgNS4xNTggNS4xNTggMCAwMS0xLjIzOS0xLjg4OSA2LjcgNi43IDAgMDEtLjQxNi0yLjM5MSA2LjUxNCA2LjUxNCAwIDAxLjQzNS0yLjQzMSA0Ljk2MSA0Ljk2MSAwIDAxMS4yNzYtMS44NDggNS43OTMgNS43OTMgMCAwMTIuMDc2LTEuMTc1IDguOTg2IDguOTg2IDAgMDEyLjgzMi0uNDEyIDguODY1IDguODY1IDAgMDEyLjgyMy40MTcgNS43NTIgNS43NTIgMCAwMTIuMDcxIDEuMTgzIDUuMDEyIDUuMDEyIDAgMDExLjI3MiAxLjg1MiA2LjQ2MyA2LjQ2MyAwIDAxLjQzNSAyLjQxNSA2LjQ1OSA2LjQ1OSAwIDAxLS40NDkgMi40NDggNS4yMjkgNS4yMjkgMCAwMS0xLjMgMS44ODUgNS44NzcgNS44NzcgMCAwMS0yLjA4IDEuMjA3IDguNTc2IDguNTc2IDAgMDEtMi43OTEuNDI0em0uMDE5LTEwLjU1OGE2LjEzNSA2LjEzNSAwIDAwLTIuMDkuMzI3IDQuMDIyIDQuMDIyIDAgMDAtMS41LjkzIDMuODM3IDMuODM3IDAgMDAtLjkgMS40NTIgNS42ODkgNS42ODkgMCAwMC0uMyAxLjg4NSA1LjYxOSA1LjYxOSAwIDAwLjMwOCAxLjkgMy45ODIgMy45ODIgMCAwMDIuNCAyLjQ1NiA1LjY4OCA1LjY4OCAwIDAwMi4wNTcuMzQ3IDUuOTY0IDUuOTY0IDAgMDAyLjE1MS0uMzUxIDMuOTUyIDMuOTUyIDAgMDAxLjQ4NS0uOTc2IDMuOTI3IDMuOTI3IDAgMDAuODYtMS40ODggNi4xNTUgNi4xNTUgMCAwMC4yNzktMS44ODUgNS41MjYgNS41MjYgMCAwMC0uMzA3LTEuODg1IDMuOTQzIDMuOTQzIDAgMDAtLjkwOC0xLjQ1MiA0LjAzNyA0LjAzNyAwIDAwLTEuNDktLjkzIDUuOTU3IDUuOTU3IDAgMDAtMi4wNDUtLjMzem04LjExNCA0LjU5M2E2LjY3NiA2LjY3NiAwIDAxLjQyMS0yLjQzMSA0LjgyMiA0LjgyMiAwIDAxMS4yNTctMS44NDggNS43MTEgNS43MTEgMCAwMTIuMDc2LTEuMTc1IDkuMTE4IDkuMTE4IDAgMDEyLjg3NS0uNDEyIDEwLjk3MyAxMC45NzMgMCAwMTIuMTU2LjE4OCA2LjE4MSA2LjE4MSAwIDAxMS42MDguNTM4IDQuMjMzIDQuMjMzIDAgMDExLjE1My44NTMgNS4xMjMgNS4xMjMgMCAwMS44IDEuMTNsLTEuNzIyLjQ0MWEzLjc0NCAzLjc0NCAwIDAwLS41OTEtLjc3MSAzLjE0OCAzLjE0OCAwIDAwLS44MzMtLjU5MiA0LjcgNC43IDAgMDAtMS4xMzktLjM4IDcuMzY5IDcuMzY5IDAgMDAtMS40OC0uMTM1IDYuMTIzIDYuMTIzIDAgMDAtMi4xLjMyNyAzLjg4IDMuODggMCAwMC0xLjQ4MS45MzEgMy44MDcgMy44MDcgMCAwMC0uODc1IDEuNDUyIDUuODMzIDUuODMzIDAgMDAtLjI4OCAxLjg4NSA1LjUzMiA1LjUzMiAwIDAwLjMxMiAxLjkgNC4wNjEgNC4wNjEgMCAwMC45MjcgMS40ODUgNC4yIDQuMiAwIDAwMS41MjQuOTY4IDUuOTM3IDUuOTM3IDAgMDAyLjExNC4zNDcgOC40OTIgOC40OTIgMCAwMDEuNDQ2LS4xMTQgNy42NzUgNy42NzUgMCAwMDEuMi0uMyA1LjkxMSA1LjkxMSAwIDAwLjk0MS0uNDA4IDQuMzY2IDQuMzY2IDAgMDAuNjgxLS40NTN2LTIuMDcxaC0zLjk4MnYtMS4zMDZoNS42NDV2My45NjZhNi44MzcgNi44MzcgMCAwMS0xLjA0NS43NDYgNy45MjggNy45MjggMCAwMS0xLjM0Ny42MjUgOS43OTQgOS43OTQgMCAwMS0xLjYzNi40MjQgMTEuMSAxMS4xIDAgMDEtMS45LjE1NSA4LjgyMSA4LjgyMSAwIDAxLTIuOTQxLS40NDUgNS43ODIgNS43ODIgMCAwMS0yLjA5NS0xLjI0IDUuMDkyIDUuMDkyIDAgMDEtMS4yNi0xLjg4OSA2LjYgNi42IDAgMDEtLjQyMS0yLjM5MSIgZmlsbD0iI2MzMWUxYyIvPjxwYXRoIGQ9Ik0wIDYyLjMxOGgxNTIuMzk1VjBIMHoiIGZpbGw9Im5vbmUiLz48ZyBjbGlwLXBhdGg9InVybCgjYSkiIGZpbGw9IiNjMzFlMWMiPjxwYXRoIGQ9Ik0xMjMuNjQgNjIuMTU5aDEuODA2di0xMS41aC0xLjgwNnptNS4xODIgMHYtMTEuNWgxMC4xMDh2MS4yNzNoLTguM3YzLjY4OGg3LjczM3YxLjI1NmgtNy43MzV2NC4wMDZoOC42OTR2MS4yNzd6bTIzLjM1Ni0zLjE3N2EyLjggMi44IDAgMDEtLjMyNiAxLjMzOCAyLjkwOSAyLjkwOSAwIDAxLTEuMDA3IDEuMDU3IDUuNDY4IDUuNDY4IDAgMDEtMS43MTcuNjkzIDEwLjU4NyAxMC41ODcgMCAwMS0yLjQ1NC4yNDkgOC4yNDYgOC4yNDYgMCAwMS0zLjg3Ny0uNzUgMy40IDMuNCAwIDAxLTEuNzY4LTIuMTcybDEuNzUtLjNhMi41NTMgMi41NTMgMCAwMC40MDcuODE2IDIuMzU1IDIuMzU1IDAgMDAuNzQyLjYzMiA0LjA2NSA0LjA2NSAwIDAwMS4xNTguNDEyIDguMDY1IDguMDY1IDAgMDAxLjY1NS4xNDcgOC41MjQgOC41MjQgMCAwMDEuNDc1LS4xMTYgNC4xMyA0LjEzIDAgMDAxLjE1My0uMzYzIDEuOTkxIDEuOTkxIDAgMDAuNzUyLS42MzcgMS41ODggMS41ODggMCAwMC4yNjktLjkyNiAxLjM2NCAxLjM2NCAwIDAwLS4zLS45MTQgMi4yIDIuMiAwIDAwLS44MzYtLjU3OSA2Ljk3OSA2Ljk3OSAwIDAwLTEuMjg0LS4zODFxLS43NDctLjE1NS0xLjY1NS0uMzM0LS41NTgtLjEwNi0xLjEyMS0uMjMzYTEwLjQgMTAuNCAwIDAxLTEuMDc4LS4zIDYuODg4IDYuODg4IDAgMDEtLjk2OS0uNDEyIDMuMTYgMy4xNiAwIDAxLS43ODUtLjU2NyAyLjQ0OSAyLjQ0OSAwIDAxLS41Mi0uNzY3IDIuNTE0IDIuNTE0IDAgMDEtLjE4OS0xLjAxMSAyLjQ5NCAyLjQ5NCAwIDAxLjM4My0xLjQgMi45NDYgMi45NDYgMCAwMTEuMDY0LS45NTggNS4zIDUuMyAwIDAxMS42MDgtLjU0NyAxMS4wMTkgMTEuMDE5IDAgMDEyLS4xNzEgMTEuNTI1IDExLjUyNSAwIDAxMi4xMjEuMTY3IDUgNSAwIDAxMS40ODUuNSAyLjk2NiAyLjk2NiAwIDAxLjk2OS44MjggNC4xMTUgNC4xMTUgMCAwMS41ODIgMS4xNDZsLTEuNzc4LjI2OWEyLjQxMSAyLjQxMSAwIDAwLS4zODMtLjc0MyAyLjAzOCAyLjAzOCAwIDAwLS42NTctLjU0NiAzLjQ2NyAzLjQ2NyAwIDAwLS45ODgtLjMzNCA3LjE4IDcuMTggMCAwMC0xLjM2Ni0uMTE0IDcuMTE5IDcuMTE5IDAgMDAtMS41NTYuMTQzIDMuMTkzIDMuMTkzIDAgMDAtMS4wMDguMzg5IDEuNDc5IDEuNDc5IDAgMDAtLjU0OC41NzUgMS41NzIgMS41NzIgMCAwMC0uMTY2LjcxNCAxLjIxNSAxLjIxNSAwIDAwLjMuODQ1IDIuMjg4IDIuMjg4IDAgMDAuODA5LjU1IDYuNDYzIDYuNDYzIDAgMDAxLjE4Mi4zNjdxLjY3Mi4xNDcgMS40MjguMjk0LjYxNS4xMjIgMS4yMjUuMjQ5YTExLjk2IDExLjk2IDAgMDExLjE2OC4zIDcuNjkxIDcuNjkxIDAgMDExLjA0NS40MTIgMy4zMyAzLjMzIDAgMDEuODQ2LjU4IDIuNDc3IDIuNDc3IDAgMDEuNTYzLjgwNyAyLjcxNiAyLjcxNiAwIDAxLjIgMS4wOTQiLz48L2c+PC9zdmc+" alt="S3 Technologies"></div>
+  <span class="title">New offer intake</span>
+</header>
+
+<div class="container" id="app">
+  <h1>Start a new offer</h1>
+  <p class="lead">Choose how the meeting comes in. The assistant drafts a personalized offer, then sends you a link to review and approve before anything reaches the client.</p>
+
+  <div class="modes">
+    <div class="mode on" data-mode="meeting" onclick="setMode('meeting')">
+      <div class="ico">🎥</div><div class="lbl">Live meeting</div><div class="sub">Send a bot to a Zoom / Teams / Meet link</div>
+    </div>
+    <div class="mode" data-mode="paste" onclick="setMode('paste')">
+      <div class="ico">📝</div><div class="lbl">Paste transcript</div><div class="sub">Paste text or notes</div>
+    </div>
+    <div class="mode" data-mode="textfile" onclick="setMode('textfile')">
+      <div class="ico">📄</div><div class="lbl">Upload file</div><div class="sub">.txt / .vtt / .srt transcript</div>
+    </div>
+    <div class="mode" data-mode="audio" onclick="setMode('audio')">
+      <div class="ico">🎙️</div><div class="lbl">Upload audio/video</div><div class="sub">mp3 / m4a / wav / mp4</div>
+    </div>
+  </div>
+
+  <fieldset><legend>Client</legend>
+    <div class="row">
+      <div><label>Company *</label><input id="company"></div>
+      <div><label>Industry</label><input id="industry"></div>
+    </div>
+    <div class="row">
+      <div><label>Contact name *</label><input id="contactName"></div>
+      <div><label>Contact email *</label><input id="contactEmail"></div>
+    </div>
+  </fieldset>
+
+  <!-- Live meeting -->
+  <fieldset class="mode-panel on" data-panel="meeting"><legend>🎥 Live meeting</legend>
+    <label>Meeting link (Zoom / Teams / Google Meet)</label>
+    <input id="meetingUrl" placeholder="https://zoom.us/j/…  or  https://teams.microsoft.com/…">
+    <p class="hint">A notetaker bot joins the call, records it, and transcribes the conversation. The offer drafts automatically once the meeting ends — you'll get the review link by email. Nothing else to do.</p>
+  </fieldset>
+
+  <!-- Paste -->
+  <fieldset class="mode-panel" data-panel="paste"><legend>📝 Paste transcript or notes</legend>
+    <label>Transcript / notes</label>
+    <textarea id="pasteText" placeholder="Paste the meeting transcript or your notes here…"></textarea>
+  </fieldset>
+
+  <!-- Text file -->
+  <fieldset class="mode-panel" data-panel="textfile"><legend>📄 Upload a transcript file</legend>
+    <label>Transcript file (.txt, .vtt, .srt, .md)</label>
+    <input type="file" id="textFile" accept=".txt,.vtt,.srt,.md,text/plain">
+    <p class="hint">The file is read in your browser and its text is used directly — nothing is stored.</p>
+  </fieldset>
+
+  <!-- Audio -->
+  <fieldset class="mode-panel" data-panel="audio"><legend>🎙️ Upload audio or video</legend>
+    <label>Recording (.mp3, .m4a, .wav, .mp4, .webm)</label>
+    <input type="file" id="audioFile" accept="audio/*,video/*,.mp3,.m4a,.wav,.mp4,.webm">
+    <p class="hint">The recording is transcribed automatically, then turned into an offer. Large files may take a minute.</p>
+  </fieldset>
+
+  <button class="submit" id="submitBtn" onclick="submitIntake()">Generate offer →</button>
+  <div class="status" id="status"></div>
+</div>
+
+<div class="done" id="doneScreen">
+  <div class="mark">S3</div>
+  <h2 id="doneTitle">Received ✓</h2>
+  <p id="doneMsg"></p>
+  <button onclick="location.reload()">Start another</button>
+</div>
+
+<script>
+// n8n endpoints (production webhooks). Paths are deterministic from the workflow webhook paths.
+const SCHEDULE_URL = "https://ytiemani.app.n8n.cloud/webhook/schedule-bot"; // wf-1 (meeting → bot)
+const INTAKE_URL   = "https://ytiemani.app.n8n.cloud/webhook/intake";        // wf-2 (text → pipeline)
+const AUDIO_URL    = "https://ytiemani.app.n8n.cloud/webhook/intake-audio";  // wf-4 (audio → Deepgram → pipeline)
+
+let MODE = "meeting";
+function setMode(m){
+  MODE = m;
+  document.querySelectorAll('.mode').forEach(e=>e.classList.toggle('on', e.dataset.mode===m));
+  document.querySelectorAll('.mode-panel').forEach(e=>e.classList.toggle('on', e.dataset.panel===m));
+  document.getElementById('status').textContent='';
+}
+function client(){
+  return {
+    company: val('company'), industry: val('industry'),
+    contactName: val('contactName'), contactEmail: val('contactEmail')
+  };
+}
+function val(id){ return document.getElementById(id).value.trim(); }
+function readFile(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsText(file); }); }
+
+function need(c){
+  if(!c.company || !c.contactName || !c.contactEmail){ status('Please fill company, contact name and email.', true); return false; }
+  return true;
+}
+function status(msg, err){ const s=document.getElementById('status'); s.textContent=msg; s.className='status'+(err?' err':' ok'); }
+
+async function submitIntake(){
+  const c = client();
+  if(!need(c)) return;
+  const btn=document.getElementById('submitBtn'); btn.disabled=true;
+  try{
+    if(MODE==='meeting'){
+      const url = val('meetingUrl');
+      if(!url){ status('Paste the meeting link.', true); btn.disabled=false; return; }
+      status('Dispatching the notetaker bot…');
+      await post(SCHEDULE_URL, { meetingUrl:url, client:c });
+      done('Bot dispatched 🎥', 'A notetaker is joining the meeting. After the call ends, the offer drafts automatically and the review link is emailed to you.');
+    }
+    else if(MODE==='paste'){
+      const t = val('pasteText');
+      if(!t){ status('Paste the transcript or notes.', true); btn.disabled=false; return; }
+      status('Drafting the offer…');
+      await post(INTAKE_URL, { client:c, source:'paste', transcript:t });
+      done('Transcript received 📝', 'The assistant is drafting the offer now. You\'ll get the review link by email shortly.');
+    }
+    else if(MODE==='textfile'){
+      const f = document.getElementById('textFile').files[0];
+      if(!f){ status('Choose a transcript file.', true); btn.disabled=false; return; }
+      status('Reading file…');
+      const t = await readFile(f);
+      status('Drafting the offer…');
+      await post(INTAKE_URL, { client:c, source:'file', transcript:t });
+      done('File received 📄', 'The assistant is drafting the offer now. You\'ll get the review link by email shortly.');
+    }
+    else if(MODE==='audio'){
+      const f = document.getElementById('audioFile').files[0];
+      if(!f){ status('Choose an audio or video file.', true); btn.disabled=false; return; }
+      status('Uploading & transcribing… this can take a minute.');
+      const fd = new FormData();
+      fd.append('file', f, f.name);
+      fd.append('client', JSON.stringify(c));
+      const res = await fetch(AUDIO_URL, { method:'POST', body: fd });
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      done('Recording received 🎙️', 'It\'s being transcribed and turned into an offer. You\'ll get the review link by email shortly.');
+    }
+  }catch(e){ status('Something went wrong: '+e.message, true); btn.disabled=false; }
+}
+
+async function post(url, body){
+  const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res;
+}
+function done(title, msg){
+  document.getElementById('app').style.display='none';
+  document.getElementById('doneTitle').textContent=title;
+  document.getElementById('doneMsg').textContent=msg;
+  document.getElementById('doneScreen').style.display='block';
+}
+</script>
+</body>
+</html>
