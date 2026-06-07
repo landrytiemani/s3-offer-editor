@@ -13,7 +13,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://us-west-2.recall.ai/api/v1/bot/{{ $json.body.data.bot_id || $json.body.bot_id }}/transcript/",
+        "url": "=https://us-west-2.recall.ai/api/v1/bot/{{ ($json.body.data && $json.body.data.bot && $json.body.data.bot.id) || ($json.body.data && $json.body.data.bot_id) || $json.body.bot_id }}/transcript/",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "options": {}
@@ -27,7 +27,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const body = $('Recall complete (Webhook)').first().json.body || {};\nconst meta = (body.data && body.data.metadata) || body.metadata || {};\nlet text = '';\nconst segs = Array.isArray($json) ? $json : ($json.transcript || []);\ntry { for (const s of segs) { const spk = s.speaker || (s.participant && s.participant.name) || 'Speaker'; const words = (s.words || []).map(w => w.text).join(' '); text += spk + ': ' + words + '\\n'; } } catch (e) {}\nif (!text) text = JSON.stringify($json);\nconst header = 'Known client: company=' + (meta.company||'') + ', contact=' + (meta.contactName||'') + ', email=' + (meta.contactEmail||'') + ', industry=' + (meta.industry||'') + '\\n\\n';\nreturn [{ json: { transcript: header + text, source: 'recall', date: new Date().toISOString().slice(0,10) } }];"
+        "jsCode": "const body = $('Recall complete (Webhook)').first().json.body || {};\nconst d = body.data || {};\nconst meta = (d.bot && d.bot.metadata) || d.metadata || body.metadata || {};\nlet text = '';\nconst segs = Array.isArray($json) ? $json : ($json.transcript || []);\ntry { for (const s of segs) { const spk = s.speaker || (s.participant && s.participant.name) || 'Speaker'; const words = (s.words || []).map(w => w.text).join(' '); text += spk + ': ' + words + '\\n'; } } catch (e) {}\nif (!text) text = JSON.stringify($json);\nconst header = 'Known client: company=' + (meta.company||'') + ', contact=' + (meta.contactName||'') + ', email=' + (meta.contactEmail||'') + ', industry=' + (meta.industry||'') + '\\n\\n';\nreturn [{ json: { transcript: header + text, source: 'recall', date: new Date().toISOString().slice(0,10) } }];"
       },
       "id": "norm-recall",
       "name": "Normalize: Recall",
