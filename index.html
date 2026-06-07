@@ -59,6 +59,7 @@
   <nav><span class="active">Offer studio</span></nav>
   <span class="spacer"></span>
   <button class="ghost" id="refreshBtn" onclick="compile()" style="display:none">⟳ Refresh preview</button>
+  <button class="ghost" id="savePdfBtn" onclick="savePDF()" style="display:none">⬇ Save PDF</button>
   <button class="approve" id="approveBtn" onclick="approve()" style="display:none">Approve &amp; send to client →</button>
 </header>
 
@@ -82,6 +83,7 @@
           <div class="transcript" id="transcriptText"></div>
         </details>
       </fieldset>
+      <button class="ghost" onclick="downloadText(TRANSCRIPT||SUMMARY||'', 'meeting-transcript.txt')" style="width:100%;margin-bottom:10px">⬇ Save transcript (.txt)</button>
       <button class="gen" id="genBtn" onclick="generate()">✦ Generate offer</button>
       <div class="hint err" id="genErr" style="text-align:center"></div>
     </div>
@@ -146,6 +148,22 @@ async function boot(){
 function v(id,val){ const e=document.getElementById(id); if(e) e.value = val==null?'':val; }
 function val(id){ const e=document.getElementById(id); return e?e.value:''; }
 
+// Save the meeting transcript as a .txt file (download in the browser).
+function downloadText(text, filename){
+  const blob = new Blob([text||''], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+// Save the proposal as a PDF (opens the rendered offer and triggers the browser's print → Save as PDF).
+function savePDF(){
+  collectClient();
+  const html = window.OfferRenderer.render(DATA);
+  const w = window.open('', '_blank');
+  if(!w){ alert('Allow pop-ups to save the PDF.'); return; }
+  w.document.write(html); w.document.close();
+  setTimeout(()=>{ try{ w.focus(); w.print(); }catch(e){} }, 700);
+}
+
 function enterReview(){
   STATE='review';
   document.getElementById('reviewView').style.display='block';
@@ -168,6 +186,7 @@ function enterOffer(){
   document.getElementById('offerView').style.display='block';
   document.getElementById('approveBtn').style.display='inline-block';
   document.getElementById('refreshBtn').style.display='inline-block';
+  document.getElementById('savePdfBtn').style.display='inline-block';
   document.getElementById('placeholder').style.display='none';
   document.getElementById('sheet').style.display='block';
   const c=DATA.client||{};
