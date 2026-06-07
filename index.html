@@ -17,7 +17,6 @@
   *{box-sizing:border-box}
   body{margin:0;font-family:'Lato','sofia-pro',-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     color:var(--navy);background:var(--bg)}
-  /* ---- S3-style top bar ---- */
   header{background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(20,30,48,.03);
     padding:0 28px;height:64px;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:20}
   .logo{display:flex;align-items:center}
@@ -27,26 +26,15 @@
   nav span.active{color:var(--red)}
   .spacer{flex:1}
   button{font:inherit;font-family:var(--sofia);border:0;border-radius:8px;padding:10px 18px;font-weight:800;cursor:pointer;transition:.15s}
-  .compile{background:var(--red);color:#fff;font-size:15px;box-shadow:0 6px 16px rgba(195,30,28,.28)}
-  .compile:hover{background:#a81714}
+  .compile{background:#eef1f5;color:var(--navy)}
+  .compile:hover{background:#e2e7ee}
   .approve{background:var(--navy);color:#fff}
   .approve:hover{background:#0c1421}
   .approve:disabled{opacity:.45;cursor:not-allowed}
-  .ai-box{border:1.5px solid var(--red);border-radius:12px;background:#fff6f6}
-  .ai-box legend{color:var(--red)}
-  .ai-apply{background:var(--red);color:#fff;padding:9px 16px}
-  .ai-apply:hover{background:#a81714}
-  .ai-apply:disabled{opacity:.5;cursor:not-allowed}
-  .ghost{background:#eef1f5;color:var(--navy)}
-  .ghost:hover{background:#e2e7ee}
-  /* ---- layout ---- */
   .sub{background:#fff;border-bottom:1px solid var(--line);padding:10px 28px;display:flex;align-items:center;gap:14px}
   .sub .h{font-family:var(--sofia);font-weight:800;color:var(--navy)}
   .sub .client{color:var(--muted);font-size:14px}
-  .tabs{display:flex;gap:6px;margin-left:auto}
-  .tabs button{background:#eef1f5;color:var(--muted);padding:7px 14px;font-size:14px}
-  .tabs button.on{background:var(--navy);color:#fff}
-  .wrap{display:grid;grid-template-columns:minmax(400px,0.95fr) minmax(480px,1.05fr);height:calc(100vh - 64px - 53px)}
+  .wrap{display:grid;grid-template-columns:minmax(380px,0.85fr) minmax(480px,1.15fr);height:calc(100vh - 64px - 53px)}
   .pane{overflow:auto}
   .pane.edit{border-right:1px solid var(--line);background:#fff;padding:22px 26px}
   .pane.out{background:#eceff3;padding:24px;display:flex;justify-content:center}
@@ -54,14 +42,18 @@
     text-transform:uppercase;letter-spacing:.05em;margin:14px 0 5px}
   input,textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff;color:var(--navy)}
   input:focus,textarea:focus{outline:0;border-color:var(--red);box-shadow:0 0 0 3px rgba(195,30,28,.12)}
-  textarea{min-height:84px;resize:vertical;line-height:1.5}
-  fieldset{border:1px solid var(--line);border-radius:12px;padding:8px 16px 18px;margin:18px 0}
+  textarea{min-height:120px;resize:vertical;line-height:1.5}
+  fieldset{border:1px solid var(--line);border-radius:12px;padding:8px 16px 18px;margin:0 0 18px}
   legend{font-family:var(--sofia);font-weight:900;padding:0 8px;color:var(--navy);font-size:15px}
   .hint{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
   .err{color:var(--red);font-weight:700}
-  .raw{display:none}
-  .raw textarea{min-height:72vh;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
-  /* output framed like a sheet of paper */
+  /* AI box = the primary way to edit */
+  .ai-box{border:1.5px solid var(--red);border-radius:14px;background:#fff6f6;padding:10px 18px 20px}
+  .ai-box legend{color:var(--red);font-size:16px}
+  .ai-box textarea{min-height:150px}
+  .ai-apply{background:var(--red);color:#fff;padding:11px 18px;font-size:15px;box-shadow:0 6px 16px rgba(195,30,28,.28)}
+  .ai-apply:hover{background:#a81714}
+  .ai-apply:disabled{opacity:.5;cursor:not-allowed}
   .sheet{width:794px;max-width:100%;background:#fff;border-radius:6px;box-shadow:0 10px 40px rgba(20,30,48,.16);overflow:hidden}
   iframe{width:794px;height:1123px;border:0;background:#fff;display:block}
   .stale{position:fixed;right:26px;bottom:22px;background:var(--navy);color:#fff;font-family:var(--sofia);
@@ -75,56 +67,37 @@
 </head>
 <body>
 <header>
-  <div class="logo"><img src="s3-logo.svg" alt="S3 Technologies"></div>
+  <div class="logo"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTIuMzk1IiBoZWlnaHQ9IjYyLjMxOCIgdmlld0JveD0iMCAwIDE1Mi4zOTUgNjIuMzE4Ij48ZGVmcz48Y2xpcFBhdGggaWQ9ImEiPjxwYXRoIGQ9Ik0wIDYyLjMxOGgxNTIuMzk1VjBIMHoiIGZpbGw9Im5vbmUiLz48L2NsaXBQYXRoPjwvZGVmcz48cGF0aCBkPSJNNzEuOTY0IDMzLjdhNy43NiA3Ljc2IDAgMDEtMy4xMzMgNi40MTggOC42NzYgOC42NzYgMCAwMS01LjMzMSAyLjAyM0g4LjQ2NmE3LjczMSA3LjczMSAwIDAxLTYuNTE5LTMuMTI0QTguNiA4LjYgMCAwMTAgMzMuN2g2My41di04LjQ0OUg4LjQ2NmE3LjggNy44IDAgMDEtNi40MzUtMy4xMTRBOC41NzkgOC41NzkgMCAwMTAgMTYuODMzVjguNDE4YTcuNzQzIDcuNzQzIDAgMDEzLjA0OC02LjQ4MkE4LjU0OSA4LjU0OSAwIDAxOC40NjYgMEg2My41YTcuNzI3IDcuNzI3IDAgMDE2LjQzNCAzLjA0IDguNDkzIDguNDkzIDAgMDEyLjAzMiA1LjRoLTYzLjV2OC4zNjFINjMuNWE3LjcyNSA3LjcyNSAwIDAxNi40MzQgMy4wNCA4LjQ5MyA4LjQ5MyAwIDAxMi4wMzIgNS40em04MC40MzEuMDEzYTguMzQ5IDguMzQ5IDAgMDEtMS45NDcgNS4zMSA3Ljg4MiA3Ljg4MiAwIDAxLTYuNTE3IDMuMTE4aC02My41VjMzLjdoNjMuNXYtOC40NDloLTYzLjV2LTguNDQ1aDYzLjVWOC40NDVoLTYzLjVWMGg2My41YTguNDM2IDguNDM2IDAgMDE1LjMzNCAxLjkzOSA3LjgyMyA3LjgyMyAwIDAxMy4xMzMgNi40ODl6TTYuNTk2IDUxLjkzMnYxMC4yMjdoLTEuOFY1MS45MzJILjIyM3YtMS4yNzNoMTAuOTV2MS4yNzN6bTYuNjEgMTAuMjI3di0xMS41aDEwLjEwOHYxLjI3M2gtOC4zdjMuNjg4aDcuNzMzdjEuMjU2aC03LjczNXY0LjAwNmg4LjY5NHYxLjI3N3pNMzIuMDI0IDUxLjc2YTUuNzMxIDUuNzMxIDAgMDAtMi4wMDYuMzI3IDMuODI4IDMuODI4IDAgMDAtMi4zNjMgMi4zODIgNS41NzYgNS41NzYgMCAwMC0uMyAxLjg4NSA1LjMwOSA1LjMwOSAwIDAwLjMyNiAxLjkgNC4wOTEgNC4wOTEgMCAwMDIuNDMgMi40NDQgNS40NzIgNS40NzIgMCAwMDEuOTkuMzQzIDUuMzQ5IDUuMzQ5IDAgMDAxLjQxNy0uMTc5IDQuNDE4IDQuNDE4IDAgMDAxLjE1NC0uNDk0IDQuNDY4IDQuNDY4IDAgMDAuOTIyLS43NTUgNS41MTkgNS41MTkgMCAwMC43MTktLjk2N2wxLjQ3NS42MzZhNS44NjggNS44NjggMCAwMS0uODg5IDEuMiA1LjQxNyA1LjQxNyAwIDAxLTEuMjQzLjk2MyA2LjUxIDYuNTEgMCAwMS0xLjYxNy42NDEgOC4xIDguMSAwIDAxLTIuMDE5LjIzMiA4LjIyNiA4LjIyNiAwIDAxLTIuODMyLS40NDUgNS42NDQgNS42NDQgMCAwMS0yLjAzMy0xLjI0IDUuMDU1IDUuMDU1IDAgMDEtMS4yMzEtMS44ODkgNi44MTIgNi44MTIgMCAwMS0uNDA2LTIuMzkxIDYuNTQ0IDYuNTQ0IDAgMDEuNDMtMi40MzEgNC45NzEgNC45NzEgMCAwMTEuMjU4LTEuODQ4IDUuNjQ1IDUuNjQ1IDAgMDEyLjAzOC0xLjE3NSA4LjU1NSA4LjU1NSAwIDAxMi43NjEtLjQxMiA3Ljg2OCA3Ljg2OCAwIDAxMy41NTUuNzE4IDQuNDg2IDQuNDg2IDAgMDEyLjEgMi4xMjlsLTEuNzExLjQ4OWEzLjM2IDMuMzYgMCAwMC0uNTExLS43NzkgMy4yMjYgMy4yMjYgMCAwMC0uOC0uNjU3IDQuNDQ3IDQuNDQ3IDAgMDAtMS4xMy0uNDU3IDUuODEzIDUuODEzIDAgMDAtMS40OC0uMTcxbTE3LjA5MyAxMC40di01LjMzMmgtNy4yMDZ2NS4zMzJoLTEuODA2di0xMS41aDEuODA2djQuODYzaDcuMjA2di00Ljg2M2gxLjgwNnYxMS41em0xNC4wNjIgMGwtNy4xMy05Ljc5NXEuMDE5LjQuMDQ3Ljc5Mi4wMTkuMzM0LjAzMy43MDZ0LjAxNC42NTd2Ny42NEg1NC41NHYtMTEuNWgyLjFsNy4yIDkuODU2LS4wNTctLjhxLS4wMTktLjM0My0uMDM4LS43NDd0LS4wMTktLjc3MXYtNy41MzhoMS42MjZ2MTEuNXptMTEuMTM2LjE1OWE4LjU2NSA4LjU2NSAwIDAxLTIuODg0LS40NDUgNS43IDUuNyAwIDAxLTIuMDYyLTEuMjQgNS4xNTggNS4xNTggMCAwMS0xLjIzOC0xLjg4OSA2LjcgNi43IDAgMDEtLjQxNi0yLjM5MSA2LjUxNCA2LjUxNCAwIDAxLjQzNS0yLjQzMSA0Ljk1OCA0Ljk1OCAwIDAxMS4yNzYtMS44NDggNS43OTMgNS43OTMgMCAwMTIuMDc2LTEuMTc1IDguOTg0IDguOTg0IDAgMDEyLjgzMi0uNDEyIDguODU4IDguODU4IDAgMDEyLjgyMy40MTcgNS43NTMgNS43NTMgMCAwMTIuMDcxIDEuMTgzIDUuMDEyIDUuMDEyIDAgMDExLjI3MiAxLjg1MiA2LjQ2MiA2LjQ2MiAwIDAxLjQzNSAyLjQxNSA2LjQ1OSA2LjQ1OSAwIDAxLS40NSAyLjQ0OCA1LjIyNiA1LjIyNiAwIDAxLTEuMyAxLjg4NSA1Ljg4IDUuODggMCAwMS0yLjA4IDEuMjA3IDguNTcxIDguNTcxIDAgMDEtMi43OS40MjR6bS4wMTktMTAuNTU4YTYuMTI5IDYuMTI5IDAgMDAtMi4wODkuMzI3IDQuMDIxIDQuMDIxIDAgMDAtMS41LjkzIDMuODM3IDMuODM3IDAgMDAtLjkgMS40NTIgNS42ODkgNS42ODkgMCAwMC0uMyAxLjg4NSA1LjYyOCA1LjYyOCAwIDAwLjMwNyAxLjkgMy45ODMgMy45ODMgMCAwMDIuNCAyLjQ1NiA1LjY4OCA1LjY4OCAwIDAwMi4wNTcuMzQ3IDUuOTYgNS45NiAwIDAwMi4xNTEtLjM1MSAzLjk1MSAzLjk1MSAwIDAwMS40ODUtLjk3NiAzLjkyMiAzLjkyMiAwIDAwLjg2LTEuNDg4IDYuMTU1IDYuMTU1IDAgMDAuMjc5LTEuODg1IDUuNTI2IDUuNTI2IDAgMDAtLjMwNy0xLjg4NSAzLjk0MyAzLjk0MyAwIDAwLS45MDgtMS40NTIgNC4wMzggNC4wMzggMCAwMC0xLjQ4My0uOTMzIDUuOTY2IDUuOTY2IDAgMDAtMi4wNTItLjMyN3ptOC45OCAxMC4zOTl2LTExLjVoMS44MDZ2MTAuMjIzaDYuNzMzdjEuMjc3em0xNi4zMTIuMTU5YTguNTY5IDguNTY5IDAgMDEtMi44ODQtLjQ0NSA1LjY5MSA1LjY5MSAwIDAxLTIuMDYxLTEuMjQgNS4xNTggNS4xNTggMCAwMS0xLjIzOS0xLjg4OSA2LjcgNi43IDAgMDEtLjQxNi0yLjM5MSA2LjUxNCA2LjUxNCAwIDAxLjQzNS0yLjQzMSA0Ljk2MSA0Ljk2MSAwIDAxMS4yNzYtMS44NDggNS43OTMgNS43OTMgMCAwMTIuMDc2LTEuMTc1IDguOTg2IDguOTg2IDAgMDEyLjgzMi0uNDEyIDguODY1IDguODY1IDAgMDEyLjgyMy40MTcgNS43NTIgNS43NTIgMCAwMTIuMDcxIDEuMTgzIDUuMDEyIDUuMDEyIDAgMDExLjI3MiAxLjg1MiA2LjQ2MyA2LjQ2MyAwIDAxLjQzNSAyLjQxNSA2LjQ1OSA2LjQ1OSAwIDAxLS40NDkgMi40NDggNS4yMjkgNS4yMjkgMCAwMS0xLjMgMS44ODUgNS44NzcgNS44NzcgMCAwMS0yLjA4IDEuMjA3IDguNTc2IDguNTc2IDAgMDEtMi43OTEuNDI0em0uMDE5LTEwLjU1OGE2LjEzNSA2LjEzNSAwIDAwLTIuMDkuMzI3IDQuMDIyIDQuMDIyIDAgMDAtMS41LjkzIDMuODM3IDMuODM3IDAgMDAtLjkgMS40NTIgNS42ODkgNS42ODkgMCAwMC0uMyAxLjg4NSA1LjYxOSA1LjYxOSAwIDAwLjMwOCAxLjkgMy45ODIgMy45ODIgMCAwMDIuNCAyLjQ1NiA1LjY4OCA1LjY4OCAwIDAwMi4wNTcuMzQ3IDUuOTY0IDUuOTY0IDAgMDAyLjE1MS0uMzUxIDMuOTUyIDMuOTUyIDAgMDAxLjQ4NS0uOTc2IDMuOTI3IDMuOTI3IDAgMDAuODYtMS40ODggNi4xNTUgNi4xNTUgMCAwMC4yNzktMS44ODUgNS41MjYgNS41MjYgMCAwMC0uMzA3LTEuODg1IDMuOTQzIDMuOTQzIDAgMDAtLjkwOC0xLjQ1MiA0LjAzNyA0LjAzNyAwIDAwLTEuNDktLjkzIDUuOTU3IDUuOTU3IDAgMDAtMi4wNDUtLjMzem04LjExNCA0LjU5M2E2LjY3NiA2LjY3NiAwIDAxLjQyMS0yLjQzMSA0LjgyMiA0LjgyMiAwIDAxMS4yNTctMS44NDggNS43MTEgNS43MTEgMCAwMTIuMDc2LTEuMTc1IDkuMTE4IDkuMTE4IDAgMDEyLjg3NS0uNDEyIDEwLjk3MyAxMC45NzMgMCAwMTIuMTU2LjE4OCA2LjE4MSA2LjE4MSAwIDAxMS42MDguNTM4IDQuMjMzIDQuMjMzIDAgMDExLjE1My44NTMgNS4xMjMgNS4xMjMgMCAwMS44IDEuMTNsLTEuNzIyLjQ0MWEzLjc0NCAzLjc0NCAwIDAwLS41OTEtLjc3MSAzLjE0OCAzLjE0OCAwIDAwLS44MzMtLjU5MiA0LjcgNC43IDAgMDAtMS4xMzktLjM4IDcuMzY5IDcuMzY5IDAgMDAtMS40OC0uMTM1IDYuMTIzIDYuMTIzIDAgMDAtMi4xLjMyNyAzLjg4IDMuODggMCAwMC0xLjQ4MS45MzEgMy44MDcgMy44MDcgMCAwMC0uODc1IDEuNDUyIDUuODMzIDUuODMzIDAgMDAtLjI4OCAxLjg4NSA1LjUzMiA1LjUzMiAwIDAwLjMxMiAxLjkgNC4wNjEgNC4wNjEgMCAwMC45MjcgMS40ODUgNC4yIDQuMiAwIDAwMS41MjQuOTY4IDUuOTM3IDUuOTM3IDAgMDAyLjExNC4zNDcgOC40OTIgOC40OTIgMCAwMDEuNDQ2LS4xMTQgNy42NzUgNy42NzUgMCAwMDEuMi0uMyA1LjkxMSA1LjkxMSAwIDAwLjk0MS0uNDA4IDQuMzY2IDQuMzY2IDAgMDAuNjgxLS40NTN2LTIuMDcxaC0zLjk4MnYtMS4zMDZoNS42NDV2My45NjZhNi44MzcgNi44MzcgMCAwMS0xLjA0NS43NDYgNy45MjggNy45MjggMCAwMS0xLjM0Ny42MjUgOS43OTQgOS43OTQgMCAwMS0xLjYzNi40MjQgMTEuMSAxMS4xIDAgMDEtMS45LjE1NSA4LjgyMSA4LjgyMSAwIDAxLTIuOTQxLS40NDUgNS43ODIgNS43ODIgMCAwMS0yLjA5NS0xLjI0IDUuMDkyIDUuMDkyIDAgMDEtMS4yNi0xLjg4OSA2LjYgNi42IDAgMDEtLjQyMS0yLjM5MSIgZmlsbD0iI2MzMWUxYyIvPjxwYXRoIGQ9Ik0wIDYyLjMxOGgxNTIuMzk1VjBIMHoiIGZpbGw9Im5vbmUiLz48ZyBjbGlwLXBhdGg9InVybCgjYSkiIGZpbGw9IiNjMzFlMWMiPjxwYXRoIGQ9Ik0xMjMuNjQgNjIuMTU5aDEuODA2di0xMS41aC0xLjgwNnptNS4xODIgMHYtMTEuNWgxMC4xMDh2MS4yNzNoLTguM3YzLjY4OGg3LjczM3YxLjI1NmgtNy43MzV2NC4wMDZoOC42OTR2MS4yNzd6bTIzLjM1Ni0zLjE3N2EyLjggMi44IDAgMDEtLjMyNiAxLjMzOCAyLjkwOSAyLjkwOSAwIDAxLTEuMDA3IDEuMDU3IDUuNDY4IDUuNDY4IDAgMDEtMS43MTcuNjkzIDEwLjU4NyAxMC41ODcgMCAwMS0yLjQ1NC4yNDkgOC4yNDYgOC4yNDYgMCAwMS0zLjg3Ny0uNzUgMy40IDMuNCAwIDAxLTEuNzY4LTIuMTcybDEuNzUtLjNhMi41NTMgMi41NTMgMCAwMC40MDcuODE2IDIuMzU1IDIuMzU1IDAgMDAuNzQyLjYzMiA0LjA2NSA0LjA2NSAwIDAwMS4xNTguNDEyIDguMDY1IDguMDY1IDAgMDAxLjY1NS4xNDcgOC41MjQgOC41MjQgMCAwMDEuNDc1LS4xMTYgNC4xMyA0LjEzIDAgMDAxLjE1My0uMzYzIDEuOTkxIDEuOTkxIDAgMDAuNzUyLS42MzcgMS41ODggMS41ODggMCAwMC4yNjktLjkyNiAxLjM2NCAxLjM2NCAwIDAwLS4zLS45MTQgMi4yIDIuMiAwIDAwLS44MzYtLjU3OSA2Ljk3OSA2Ljk3OSAwIDAwLTEuMjg0LS4zODFxLS43NDctLjE1NS0xLjY1NS0uMzM0LS41NTgtLjEwNi0xLjEyMS0uMjMzYTEwLjQgMTAuNCAwIDAxLTEuMDc4LS4zIDYuODg4IDYuODg4IDAgMDEtLjk2OS0uNDEyIDMuMTYgMy4xNiAwIDAxLS43ODUtLjU2NyAyLjQ0OSAyLjQ0OSAwIDAxLS41Mi0uNzY3IDIuNTE0IDIuNTE0IDAgMDEtLjE4OS0xLjAxMSAyLjQ5NCAyLjQ5NCAwIDAxLjM4My0xLjQgMi45NDYgMi45NDYgMCAwMTEuMDY0LS45NTggNS4zIDUuMyAwIDAxMS42MDgtLjU0NyAxMS4wMTkgMTEuMDE5IDAgMDEyLS4xNzEgMTEuNTI1IDExLjUyNSAwIDAxMi4xMjEuMTY3IDUgNSAwIDAxMS40ODUuNSAyLjk2NiAyLjk2NiAwIDAxLjk2OS44MjggNC4xMTUgNC4xMTUgMCAwMS41ODIgMS4xNDZsLTEuNzc4LjI2OWEyLjQxMSAyLjQxMSAwIDAwLS4zODMtLjc0MyAyLjAzOCAyLjAzOCAwIDAwLS42NTctLjU0NiAzLjQ2NyAzLjQ2NyAwIDAwLS45ODgtLjMzNCA3LjE4IDcuMTggMCAwMC0xLjM2Ni0uMTE0IDcuMTE5IDcuMTE5IDAgMDAtMS41NTYuMTQzIDMuMTkzIDMuMTkzIDAgMDAtMS4wMDguMzg5IDEuNDc5IDEuNDc5IDAgMDAtLjU0OC41NzUgMS41NzIgMS41NzIgMCAwMC0uMTY2LjcxNCAxLjIxNSAxLjIxNSAwIDAwLjMuODQ1IDIuMjg4IDIuMjg4IDAgMDAuODA5LjU1IDYuNDYzIDYuNDYzIDAgMDAxLjE4Mi4zNjdxLjY3Mi4xNDcgMS40MjguMjk0LjYxNS4xMjIgMS4yMjUuMjQ5YTExLjk2IDExLjk2IDAgMDExLjE2OC4zIDcuNjkxIDcuNjkxIDAgMDExLjA0NS40MTIgMy4zMyAzLjMzIDAgMDEuODQ2LjU4IDIuNDc3IDIuNDc3IDAgMDEuNTYzLjgwNyAyLjcxNiAyLjcxNiAwIDAxLjIgMS4wOTQiLz48L2c+PC9zdmc+" alt="S3 Technologies"></div>
   <nav><span class="active">Offer studio</span><span>Services</span><span>Clients</span></nav>
   <span class="spacer"></span>
-  <button class="compile" onclick="compile()">⟳ Compile</button>
+  <button class="compile" onclick="compile()">⟳ Refresh preview</button>
   <button class="approve" id="approveBtn" onclick="approve()">Approve &amp; send to client →</button>
 </header>
 
 <div class="sub">
   <span class="h" id="docTitle">Offer</span>
   <span class="client" id="docClient"></span>
-  <div class="tabs">
-    <button id="tabForm" class="on" onclick="setMode('form')">Form</button>
-    <button id="tabRaw" onclick="setMode('raw')">Raw JSON</button>
-  </div>
 </div>
 
 <div id="app" class="wrap">
   <div class="pane edit">
+    <fieldset><legend>Client</legend>
+      <label>Company</label><input id="f_company">
+      <label>Contact name</label><input id="f_contactName">
+      <label>Contact email</label><input id="f_contactEmail">
+    </fieldset>
+
     <fieldset class="ai-box">
-      <legend>✦ Ask AI to revise</legend>
-      <p class="hint" style="margin-top:0">Describe the changes in plain language — the AI figures out where to apply them and keeps the rest intact. e.g. <i>"Lower total by 10%, add a 2-week training phase, make the summary warmer."</i></p>
-      <textarea id="ai_instructions" placeholder="What should change?"></textarea>
-      <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
-        <button class="ai-apply" id="aiBtn" onclick="applyAI()">✦ Apply with AI</button>
-        <span class="hint" id="aiStatus"></span>
+      <legend>✦ Revise the offer</legend>
+      <p class="hint" style="margin-top:0">Just describe what you want to change — in plain words.
+      The assistant figures out where it goes (title, summary, objectives, scope, timeline, pricing,
+      team, terms…) and keeps everything else intact. The preview updates so you can review before sending.</p>
+      <textarea id="ai_instructions" placeholder="e.g. Lower the total by 10%, add a 2-week training phase, and make the summary warmer."></textarea>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
+        <button class="ai-apply" id="aiBtn" onclick="applyAI()">✦ Apply changes</button>
+        <span class="hint" id="aiStatus" style="margin-top:0"></span>
       </div>
     </fieldset>
-    <div id="formMode">
-      <fieldset><legend>Client</legend>
-        <label>Company</label><input id="f_company">
-        <label>Contact name</label><input id="f_contactName">
-        <label>Contact email</label><input id="f_contactEmail">
-      </fieldset>
-      <fieldset><legend>Offer</legend>
-        <label>Title</label><input id="f_title">
-        <label>Executive summary</label><textarea id="f_exec"></textarea>
-        <label>Objectives (one per line)</label><textarea id="f_objectives"></textarea>
-      </fieldset>
-      <fieldset><legend>Scope · timeline · pricing · team</legend>
-        <p class="hint">These are structured arrays — edit them precisely in the
-        <b>Raw JSON</b> tab. The numbers in pricing must add up. Hit
-        <b>Compile</b> any time to refresh the live preview from your inputs.
-        Nothing is sent to the client until you click <b>Approve</b>.</p>
-      </fieldset>
-    </div>
-    <div id="rawMode" class="raw">
-      <label>Full offer JSON (offer.schema.json)</label>
-      <textarea id="rawJson" oninput="markStale()"></textarea>
-      <div id="jsonErr" class="hint"></div>
-    </div>
   </div>
 
   <div class="pane out">
@@ -132,7 +105,7 @@
   </div>
 </div>
 
-<div class="stale" id="staleBadge">Inputs changed — click ⟳ Compile to refresh</div>
+<div class="stale" id="staleBadge">Client details changed — click ⟳ Refresh preview</div>
 
 <div id="doneScreen" class="done">
   <div class="mark">S3</div>
@@ -142,94 +115,58 @@
 </div>
 
 <script>
-// wf-3 (AI edit + approve) CORS webhook. Production URL is deterministic from the path.
 const AI_URL_DEFAULT = "https://ytiemani.app.n8n.cloud/webhook/ai-edit";
-let DATA = null, RESUME_URL = null, AI_URL = AI_URL_DEFAULT, mode = "form";
+let DATA = null, RESUME_URL = null, AI_URL = AI_URL_DEFAULT;
 
 async function boot(){
   if(location.hash.length>1){
     try{
-      const raw = decodeURIComponent(location.hash.slice(1));
-      const payload = JSON.parse(atob(raw.replace(/-/g,'+').replace(/_/g,'/')));
+      const payload = JSON.parse(atob(decodeURIComponent(location.hash.slice(1)).replace(/-/g,'+').replace(/_/g,'/')));
       DATA = payload.draft || payload;
       RESUME_URL = payload.resumeUrl || null;
       if(payload.aiUrl) AI_URL = payload.aiUrl;
     }catch(e){ DATA = blank(); }
   } else {
-    // Demo mode: opened without a workflow link — load the bundled sample so the
-    // studio is explorable. In production the editor is always opened with a hash.
     try{ DATA = await (await fetch('sample-offer.json')).json(); }
     catch(e){ DATA = blank(); }
   }
-  fillForm(); compile();
+  fillClient(); compile();
 }
 function blank(){ return { client:{company:"",contactName:"",contactEmail:""}, meeting:{}, offer:{title:"",executiveSummary:"",objectives:[],scope:[],timeline:[],pricing:{currency:"EUR",lineItems:[],total:0},team:[]} }; }
 
-function fillForm(){
-  const c=DATA.client||{},o=DATA.offer||{};
-  v('f_company',c.company);v('f_contactName',c.contactName);v('f_contactEmail',c.contactEmail);
-  v('f_title',o.title);v('f_exec',o.executiveSummary);v('f_objectives',(o.objectives||[]).join('\n'));
-  document.getElementById('rawJson').value = JSON.stringify(DATA,null,2);
-  ['f_company','f_contactName','f_contactEmail','f_title','f_exec','f_objectives']
-    .forEach(id=>document.getElementById(id).addEventListener('input',markStale));
+function fillClient(){
+  const c = DATA.client || {};
+  v('f_company',c.company); v('f_contactName',c.contactName); v('f_contactEmail',c.contactEmail);
+  ['f_company','f_contactName','f_contactEmail'].forEach(id=>document.getElementById(id).addEventListener('input',markStale));
 }
 function v(id,val){ document.getElementById(id).value = val==null?'':val; }
 function val(id){ return document.getElementById(id).value; }
 
-// Pull current inputs into DATA (form or raw, depending on active tab).
-function collect(){
-  if(mode==='raw'){
-    DATA = JSON.parse(document.getElementById('rawJson').value); // throws -> caught by compile()
-  } else {
-    DATA.client = DATA.client||{}; DATA.offer = DATA.offer||{};
-    DATA.client.company = val('f_company');
-    DATA.client.contactName = val('f_contactName');
-    DATA.client.contactEmail = val('f_contactEmail');
-    DATA.offer.title = val('f_title');
-    DATA.offer.executiveSummary = val('f_exec');
-    DATA.offer.objectives = val('f_objectives').split('\n').map(s=>s.trim()).filter(Boolean);
-    document.getElementById('rawJson').value = JSON.stringify(DATA,null,2);
-  }
+function collectClient(){
+  DATA.client = DATA.client || {};
+  DATA.client.company = val('f_company');
+  DATA.client.contactName = val('f_contactName');
+  DATA.client.contactEmail = val('f_contactEmail');
 }
 
-// THE COMPILE BUTTON — refresh output from current inputs.
 function compile(){
-  const err=document.getElementById('jsonErr');
-  try{ collect(); err.textContent=''; }
-  catch(e){ err.textContent='Invalid JSON: '+e.message; err.className='hint err'; return; }
-  if(mode==='raw') fillFormQuiet();
+  collectClient();
   document.getElementById('preview').srcdoc = window.OfferRenderer.render(DATA);
   document.getElementById('docTitle').textContent = (DATA.offer&&DATA.offer.title)||'Offer';
   document.getElementById('docClient').textContent = (DATA.client&&DATA.client.company)?('· '+DATA.client.company):'';
   hideStale();
 }
-function fillFormQuiet(){
-  const c=DATA.client||{},o=DATA.offer||{};
-  v('f_company',c.company);v('f_contactName',c.contactName);v('f_contactEmail',c.contactEmail);
-  v('f_title',o.title);v('f_exec',o.executiveSummary);v('f_objectives',(o.objectives||[]).join('\n'));
-}
-
 function markStale(){ document.getElementById('staleBadge').style.display='block'; }
 function hideStale(){ document.getElementById('staleBadge').style.display='none'; }
 
-function setMode(m){
-  if(mode==='form') { try{ collect(); }catch(e){} }   // keep edits when switching
-  mode=m;
-  document.getElementById('formMode').style.display = m==='form'?'block':'none';
-  document.getElementById('rawMode').style.display  = m==='raw'?'block':'none';
-  document.getElementById('tabForm').classList.toggle('on',m==='form');
-  document.getElementById('tabRaw').classList.toggle('on',m==='raw');
-  if(m==='raw') document.getElementById('rawJson').value = JSON.stringify(DATA,null,2);
-  else fillFormQuiet();
-}
-
-// Natural-language edits → wf-3 Opus applies them → revised offer back into the editor.
+// Plain-language edits → wf-3 (Opus) applies them → revised offer back into the preview.
 async function applyAI(){
   const instr = document.getElementById('ai_instructions').value.trim();
-  if(!instr){ document.getElementById('aiStatus').textContent='Type an instruction first.'; return; }
-  try{ collect(); }catch(e){ alert('Fix the JSON first: '+e.message); return; }
-  const btn=document.getElementById('aiBtn'), st=document.getElementById('aiStatus');
-  btn.disabled=true; st.className='hint'; st.textContent='✦ Thinking…';
+  const st = document.getElementById('aiStatus');
+  if(!instr){ st.className='hint'; st.textContent='Type what you want to change first.'; return; }
+  collectClient();
+  const btn=document.getElementById('aiBtn');
+  btn.disabled=true; st.className='hint'; st.textContent='✦ Working…';
   try{
     const res = await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},
       body: JSON.stringify({action:'revise', offer:DATA, instructions:instr})});
@@ -237,29 +174,27 @@ async function applyAI(){
     const data = await res.json();
     if(!data.offer) throw new Error('No revised offer returned');
     DATA = data.offer;
-    fillFormQuiet();
-    document.getElementById('rawJson').value = JSON.stringify(DATA,null,2);
-    compile();
+    fillClientQuiet(); compile();
     document.getElementById('ai_instructions').value='';
-    st.textContent='Applied ✓ — review the preview, then approve or refine further.';
-  }catch(e){ st.className='hint err'; st.textContent='AI edit failed: '+e.message; }
+    st.textContent='Done ✓ — review the preview, then approve or ask for more changes.';
+  }catch(e){ st.className='hint err'; st.textContent='Could not apply: '+e.message; }
   finally{ btn.disabled=false; }
 }
+function fillClientQuiet(){ const c=DATA.client||{}; v('f_company',c.company); v('f_contactName',c.contactName); v('f_contactEmail',c.contactEmail); }
 
 async function approve(){
   if(!RESUME_URL){ alert('This studio was opened without a workflow link, so there is nothing to submit. Open it from the review email.'); return; }
-  try{ collect(); }catch(e){ alert('Fix the JSON before approving: '+e.message); return; }
+  collectClient();
   const btn=document.getElementById('approveBtn'); btn.disabled=true; btn.textContent='Sending…';
   try{
     const html = window.OfferRenderer.render(DATA);
-    // Routed through wf-3 (CORS) which resumes the paused main workflow server-side.
     const res = await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},
       body: JSON.stringify({action:'approve', offer:DATA, html, resumeUrl:RESUME_URL})});
     if(!res.ok) throw new Error('HTTP '+res.status);
     document.getElementById('app').style.display='none';
     document.querySelector('.sub').style.display='none';
-    document.querySelector('header .spacer').nextElementSibling.style.display='none';
     document.getElementById('approveBtn').style.display='none';
+    document.querySelector('.compile').style.display='none';
     document.getElementById('doneScreen').style.display='block';
   }catch(e){ alert('Submit failed: '+e.message); btn.disabled=false; btn.textContent='Approve & send to client →'; }
 }
