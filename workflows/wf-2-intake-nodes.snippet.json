@@ -1,0 +1,32 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "intake",
+        "responseMode": "onReceived",
+        "options": { "allowedOrigins": "*" }
+      },
+      "id": "intake-wh-01",
+      "name": "Intake (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 640],
+      "webhookId": "intake",
+      "notes": "Branded intake page (paste + text file) POSTs {client, source, transcript} here. CORS open. Connect 'Normalize: Intake' → 'Extract (Haiku · fast)'."
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $json.body || {};\nconst c = b.client || {};\nconst header = 'Known client: company=' + (c.company||'') + ', contact=' + (c.contactName||'') + ', email=' + (c.contactEmail||'') + ', industry=' + (c.industry||'') + '\\n\\n';\nreturn [{ json: { transcript: header + (b.transcript||''), source: (b.source||'intake'), date: new Date().toISOString().slice(0,10) } }];"
+      },
+      "id": "norm-intake-01",
+      "name": "Normalize: Intake",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 640]
+    }
+  ],
+  "connections": {
+    "Intake (Webhook)": { "main": [[{ "node": "Normalize: Intake", "type": "main", "index": 0 }]] }
+  }
+}

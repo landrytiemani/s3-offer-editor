@@ -1,0 +1,73 @@
+{
+  "name": "S3 Offer · 4 · Intake audio (Deepgram)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "intake-audio",
+        "responseMode": "onReceived",
+        "options": { "allowedOrigins": "*", "binaryData": true }
+      },
+      "id": "wh-audio",
+      "name": "Intake audio (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 320],
+      "webhookId": "intake-audio",
+      "notes": "Branded intake page posts multipart: file (audio/video binary) + client (JSON string). CORS open."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.deepgram.com/v1/listen?model=nova-2&punctuate=true&smart_format=true",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "file",
+        "options": {}
+      },
+      "id": "deepgram",
+      "name": "Deepgram · transcribe",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 320],
+      "credentials": { "httpHeaderAuth": { "id": "REPLACE_DEEPGRAM", "name": "Deepgram API" } },
+      "notes": "Credential 'Deepgram API' = Header Auth: Name 'Authorization', Value 'Token <deepgram key>'. Sends the uploaded audio binary (field 'file') to Deepgram."
+    },
+    {
+      "parameters": {
+        "jsCode": "const dg = $json;\nlet transcript = '';\ntry { transcript = dg.results.channels[0].alternatives[0].transcript || ''; } catch(e) {}\nlet client = {};\ntry { const raw = $('Intake audio (Webhook)').first().json.body.client; client = typeof raw === 'string' ? JSON.parse(raw) : (raw||{}); } catch(e) {}\nreturn [{ json: { client, transcript, source: 'audio' } }];"
+      },
+      "id": "build",
+      "name": "Build {client, transcript}",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ytiemani.app.n8n.cloud/webhook/intake",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "Content-Type", "value": "application/json" } ] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"client\": $json.client, \"source\": \"audio\", \"transcript\": $json.transcript } }}",
+        "options": {}
+      },
+      "id": "forward",
+      "name": "Forward to pipeline (wf-2 intake)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 320],
+      "notes": "Hands the transcript to wf-2's /webhook/intake (server-side, no CORS needed). wf-2 then runs extract → offer → review → render → sign."
+    }
+  ],
+  "connections": {
+    "Intake audio (Webhook)": { "main": [[{ "node": "Deepgram · transcribe", "type": "main", "index": 0 }]] },
+    "Deepgram · transcribe": { "main": [[{ "node": "Build {client, transcript}", "type": "main", "index": 0 }]] },
+    "Build {client, transcript}": { "main": [[{ "node": "Forward to pipeline (wf-2 intake)", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}
