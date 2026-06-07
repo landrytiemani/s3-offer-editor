@@ -5,41 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>S3 Tech · Offer studio</title>
 <link rel="icon" type="image/png" href="favicon.png">
-<!-- S3 Tech brand fonts: Sofia Pro (Typekit) + Lato -->
 <link rel="stylesheet" href="https://use.typekit.net/snu0kzf.css">
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="render.js"></script>
 <style>
-  :root{
-    --red:#c31e1c; --red2:#eb3e15; --navy:#141e30; --muted:#6c757d;
-    --line:#dee2e6; --bg:#f8f9fc; --sofia:'sofia-pro','Lato',Segoe UI,Arial,sans-serif;
-  }
+  :root{--red:#c31e1c;--red2:#eb3e15;--navy:#141e30;--muted:#6c757d;--line:#dee2e6;--bg:#f8f9fc;--sofia:'sofia-pro','Lato',Segoe UI,Arial,sans-serif}
   *{box-sizing:border-box}
-  body{margin:0;font-family:'Lato','sofia-pro',-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    color:var(--navy);background:var(--bg)}
-  header{background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(20,30,48,.03);
-    padding:0 28px;height:64px;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:20}
+  body{margin:0;font-family:'Lato','sofia-pro',-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--navy);background:var(--bg)}
+  header{background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(20,30,48,.03);padding:0 28px;height:64px;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:20}
   .logo{display:flex;align-items:center}
   .logo img{height:38px;display:block}
   nav{display:flex;gap:22px;margin-left:14px;font-family:var(--sofia);font-weight:700;font-size:15px}
-  nav span{color:var(--navy);opacity:.85}
   nav span.active{color:var(--red)}
   .spacer{flex:1}
   button{font:inherit;font-family:var(--sofia);border:0;border-radius:8px;padding:10px 18px;font-weight:800;cursor:pointer;transition:.15s}
-  .compile{background:#eef1f5;color:var(--navy)}
-  .compile:hover{background:#e2e7ee}
-  .approve{background:var(--navy);color:#fff}
-  .approve:hover{background:#0c1421}
-  .approve:disabled{opacity:.45;cursor:not-allowed}
+  .ghost{background:#eef1f5;color:var(--navy)} .ghost:hover{background:#e2e7ee}
+  .approve{background:var(--navy);color:#fff} .approve:hover{background:#0c1421} .approve:disabled{opacity:.45;cursor:not-allowed}
   .sub{background:#fff;border-bottom:1px solid var(--line);padding:10px 28px;display:flex;align-items:center;gap:14px}
-  .sub .h{font-family:var(--sofia);font-weight:800;color:var(--navy)}
-  .sub .client{color:var(--muted);font-size:14px}
-  .wrap{display:grid;grid-template-columns:minmax(380px,0.85fr) minmax(480px,1.15fr);height:calc(100vh - 64px - 53px)}
+  .sub .h{font-family:var(--sofia);font-weight:800} .sub .client{color:var(--muted);font-size:14px}
+  .wrap{display:grid;grid-template-columns:minmax(400px,0.9fr) minmax(480px,1.1fr);height:calc(100vh - 64px - 53px)}
   .pane{overflow:auto}
   .pane.edit{border-right:1px solid var(--line);background:#fff;padding:22px 26px}
-  .pane.out{background:#eceff3;padding:24px;display:flex;justify-content:center}
-  label{display:block;font-family:var(--sofia);font-size:12px;font-weight:800;color:var(--muted);
-    text-transform:uppercase;letter-spacing:.05em;margin:14px 0 5px}
+  .pane.out{background:#eceff3;padding:24px;display:flex;justify-content:center;align-items:flex-start}
+  label{display:block;font-family:var(--sofia);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 5px}
   input,textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff;color:var(--navy)}
   input:focus,textarea:focus{outline:0;border-color:var(--red);box-shadow:0 0 0 3px rgba(195,30,28,.12)}
   textarea{min-height:120px;resize:vertical;line-height:1.5}
@@ -47,22 +35,22 @@
   legend{font-family:var(--sofia);font-weight:900;padding:0 8px;color:var(--navy);font-size:15px}
   .hint{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
   .err{color:var(--red);font-weight:700}
-  /* AI box = the primary way to edit */
+  .summary{white-space:pre-wrap;line-height:1.6;font-size:14.5px}
+  .transcript{white-space:pre-wrap;font-size:13px;color:#46535f;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;max-height:340px;overflow:auto;line-height:1.5}
+  details summary{cursor:pointer;font-family:var(--sofia);font-weight:800;color:var(--navy);font-size:13px;margin:6px 0}
+  .gen{width:100%;background:var(--red);color:#fff;padding:15px;font-size:16px;box-shadow:0 8px 20px rgba(195,30,28,.28)}
+  .gen:hover{background:#a81714} .gen:disabled{opacity:.5;cursor:not-allowed}
   .ai-box{border:1.5px solid var(--red);border-radius:14px;background:#fff6f6;padding:10px 18px 20px}
-  .ai-box legend{color:var(--red);font-size:16px}
-  .ai-box textarea{min-height:150px}
+  .ai-box legend{color:var(--red);font-size:16px} .ai-box textarea{min-height:120px}
   .ai-apply{background:var(--red);color:#fff;padding:11px 18px;font-size:15px;box-shadow:0 6px 16px rgba(195,30,28,.28)}
-  .ai-apply:hover{background:#a81714}
-  .ai-apply:disabled{opacity:.5;cursor:not-allowed}
+  .ai-apply:hover{background:#a81714} .ai-apply:disabled{opacity:.5;cursor:not-allowed}
   .sheet{width:794px;max-width:100%;background:#fff;border-radius:6px;box-shadow:0 10px 40px rgba(20,30,48,.16);overflow:hidden}
   iframe{width:794px;height:1123px;border:0;background:#fff;display:block}
-  .stale{position:fixed;right:26px;bottom:22px;background:var(--navy);color:#fff;font-family:var(--sofia);
-    font-weight:700;font-size:13px;padding:10px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.2);display:none;z-index:30}
+  .placeholder{color:var(--muted);text-align:center;font-family:var(--sofia);font-weight:700;padding:80px 24px;max-width:380px}
+  .placeholder .big{font-size:40px;margin-bottom:14px}
   .done{display:none;text-align:center;padding:90px 24px}
-  .done .mark{width:64px;height:64px;border-radius:14px;background:var(--red);color:#fff;font-family:var(--sofia);
-    font-weight:900;font-size:26px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:18px}
-  .done h1{font-family:var(--sofia);font-size:30px;color:var(--navy);margin:.2em 0}
-  .done p{color:var(--muted);max-width:520px;margin:0 auto}
+  .done .mark{width:64px;height:64px;border-radius:14px;background:var(--red);color:#fff;font-family:var(--sofia);font-weight:900;font-size:26px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:18px}
+  .done h1{font-family:var(--sofia);font-size:30px;color:var(--navy);margin:.2em 0} .done p{color:var(--muted);max-width:520px;margin:0 auto}
 </style>
 </head>
 <body>
@@ -70,83 +58,148 @@
   <div class="logo"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTIuMzk1IiBoZWlnaHQ9IjYyLjMxOCIgdmlld0JveD0iMCAwIDE1Mi4zOTUgNjIuMzE4Ij48ZGVmcz48Y2xpcFBhdGggaWQ9ImEiPjxwYXRoIGQ9Ik0wIDYyLjMxOGgxNTIuMzk1VjBIMHoiIGZpbGw9Im5vbmUiLz48L2NsaXBQYXRoPjwvZGVmcz48cGF0aCBkPSJNNzEuOTY0IDMzLjdhNy43NiA3Ljc2IDAgMDEtMy4xMzMgNi40MTggOC42NzYgOC42NzYgMCAwMS01LjMzMSAyLjAyM0g4LjQ2NmE3LjczMSA3LjczMSAwIDAxLTYuNTE5LTMuMTI0QTguNiA4LjYgMCAwMTAgMzMuN2g2My41di04LjQ0OUg4LjQ2NmE3LjggNy44IDAgMDEtNi40MzUtMy4xMTRBOC41NzkgOC41NzkgMCAwMTAgMTYuODMzVjguNDE4YTcuNzQzIDcuNzQzIDAgMDEzLjA0OC02LjQ4MkE4LjU0OSA4LjU0OSAwIDAxOC40NjYgMEg2My41YTcuNzI3IDcuNzI3IDAgMDE2LjQzNCAzLjA0IDguNDkzIDguNDkzIDAgMDEyLjAzMiA1LjRoLTYzLjV2OC4zNjFINjMuNWE3LjcyNSA3LjcyNSAwIDAxNi40MzQgMy4wNCA4LjQ5MyA4LjQ5MyAwIDAxMi4wMzIgNS40em04MC40MzEuMDEzYTguMzQ5IDguMzQ5IDAgMDEtMS45NDcgNS4zMSA3Ljg4MiA3Ljg4MiAwIDAxLTYuNTE3IDMuMTE4aC02My41VjMzLjdoNjMuNXYtOC40NDloLTYzLjV2LTguNDQ1aDYzLjVWOC40NDVoLTYzLjVWMGg2My41YTguNDM2IDguNDM2IDAgMDE1LjMzNCAxLjkzOSA3LjgyMyA3LjgyMyAwIDAxMy4xMzMgNi40ODl6TTYuNTk2IDUxLjkzMnYxMC4yMjdoLTEuOFY1MS45MzJILjIyM3YtMS4yNzNoMTAuOTV2MS4yNzN6bTYuNjEgMTAuMjI3di0xMS41aDEwLjEwOHYxLjI3M2gtOC4zdjMuNjg4aDcuNzMzdjEuMjU2aC03LjczNXY0LjAwNmg4LjY5NHYxLjI3N3pNMzIuMDI0IDUxLjc2YTUuNzMxIDUuNzMxIDAgMDAtMi4wMDYuMzI3IDMuODI4IDMuODI4IDAgMDAtMi4zNjMgMi4zODIgNS41NzYgNS41NzYgMCAwMC0uMyAxLjg4NSA1LjMwOSA1LjMwOSAwIDAwLjMyNiAxLjkgNC4wOTEgNC4wOTEgMCAwMDIuNDMgMi40NDQgNS40NzIgNS40NzIgMCAwMDEuOTkuMzQzIDUuMzQ5IDUuMzQ5IDAgMDAxLjQxNy0uMTc5IDQuNDE4IDQuNDE4IDAgMDAxLjE1NC0uNDk0IDQuNDY4IDQuNDY4IDAgMDAuOTIyLS43NTUgNS41MTkgNS41MTkgMCAwMC43MTktLjk2N2wxLjQ3NS42MzZhNS44NjggNS44NjggMCAwMS0uODg5IDEuMiA1LjQxNyA1LjQxNyAwIDAxLTEuMjQzLjk2MyA2LjUxIDYuNTEgMCAwMS0xLjYxNy42NDEgOC4xIDguMSAwIDAxLTIuMDE5LjIzMiA4LjIyNiA4LjIyNiAwIDAxLTIuODMyLS40NDUgNS42NDQgNS42NDQgMCAwMS0yLjAzMy0xLjI0IDUuMDU1IDUuMDU1IDAgMDEtMS4yMzEtMS44ODkgNi44MTIgNi44MTIgMCAwMS0uNDA2LTIuMzkxIDYuNTQ0IDYuNTQ0IDAgMDEuNDMtMi40MzEgNC45NzEgNC45NzEgMCAwMTEuMjU4LTEuODQ4IDUuNjQ1IDUuNjQ1IDAgMDEyLjAzOC0xLjE3NSA4LjU1NSA4LjU1NSAwIDAxMi43NjEtLjQxMiA3Ljg2OCA3Ljg2OCAwIDAxMy41NTUuNzE4IDQuNDg2IDQuNDg2IDAgMDEyLjEgMi4xMjlsLTEuNzExLjQ4OWEzLjM2IDMuMzYgMCAwMC0uNTExLS43NzkgMy4yMjYgMy4yMjYgMCAwMC0uOC0uNjU3IDQuNDQ3IDQuNDQ3IDAgMDAtMS4xMy0uNDU3IDUuODEzIDUuODEzIDAgMDAtMS40OC0uMTcxbTE3LjA5MyAxMC40di01LjMzMmgtNy4yMDZ2NS4zMzJoLTEuODA2di0xMS41aDEuODA2djQuODYzaDcuMjA2di00Ljg2M2gxLjgwNnYxMS41em0xNC4wNjIgMGwtNy4xMy05Ljc5NXEuMDE5LjQuMDQ3Ljc5Mi4wMTkuMzM0LjAzMy43MDZ0LjAxNC42NTd2Ny42NEg1NC41NHYtMTEuNWgyLjFsNy4yIDkuODU2LS4wNTctLjhxLS4wMTktLjM0My0uMDM4LS43NDd0LS4wMTktLjc3MXYtNy41MzhoMS42MjZ2MTEuNXptMTEuMTM2LjE1OWE4LjU2NSA4LjU2NSAwIDAxLTIuODg0LS40NDUgNS43IDUuNyAwIDAxLTIuMDYyLTEuMjQgNS4xNTggNS4xNTggMCAwMS0xLjIzOC0xLjg4OSA2LjcgNi43IDAgMDEtLjQxNi0yLjM5MSA2LjUxNCA2LjUxNCAwIDAxLjQzNS0yLjQzMSA0Ljk1OCA0Ljk1OCAwIDAxMS4yNzYtMS44NDggNS43OTMgNS43OTMgMCAwMTIuMDc2LTEuMTc1IDguOTg0IDguOTg0IDAgMDEyLjgzMi0uNDEyIDguODU4IDguODU4IDAgMDEyLjgyMy40MTcgNS43NTMgNS43NTMgMCAwMTIuMDcxIDEuMTgzIDUuMDEyIDUuMDEyIDAgMDExLjI3MiAxLjg1MiA2LjQ2MiA2LjQ2MiAwIDAxLjQzNSAyLjQxNSA2LjQ1OSA2LjQ1OSAwIDAxLS40NSAyLjQ0OCA1LjIyNiA1LjIyNiAwIDAxLTEuMyAxLjg4NSA1Ljg4IDUuODggMCAwMS0yLjA4IDEuMjA3IDguNTcxIDguNTcxIDAgMDEtMi43OS40MjR6bS4wMTktMTAuNTU4YTYuMTI5IDYuMTI5IDAgMDAtMi4wODkuMzI3IDQuMDIxIDQuMDIxIDAgMDAtMS41LjkzIDMuODM3IDMuODM3IDAgMDAtLjkgMS40NTIgNS42ODkgNS42ODkgMCAwMC0uMyAxLjg4NSA1LjYyOCA1LjYyOCAwIDAwLjMwNyAxLjkgMy45ODMgMy45ODMgMCAwMDIuNCAyLjQ1NiA1LjY4OCA1LjY4OCAwIDAwMi4wNTcuMzQ3IDUuOTYgNS45NiAwIDAwMi4xNTEtLjM1MSAzLjk1MSAzLjk1MSAwIDAwMS40ODUtLjk3NiAzLjkyMiAzLjkyMiAwIDAwLjg2LTEuNDg4IDYuMTU1IDYuMTU1IDAgMDAuMjc5LTEuODg1IDUuNTI2IDUuNTI2IDAgMDAtLjMwNy0xLjg4NSAzLjk0MyAzLjk0MyAwIDAwLS45MDgtMS40NTIgNC4wMzggNC4wMzggMCAwMC0xLjQ4My0uOTMzIDUuOTY2IDUuOTY2IDAgMDAtMi4wNTItLjMyN3ptOC45OCAxMC4zOTl2LTExLjVoMS44MDZ2MTAuMjIzaDYuNzMzdjEuMjc3em0xNi4zMTIuMTU5YTguNTY5IDguNTY5IDAgMDEtMi44ODQtLjQ0NSA1LjY5MSA1LjY5MSAwIDAxLTIuMDYxLTEuMjQgNS4xNTggNS4xNTggMCAwMS0xLjIzOS0xLjg4OSA2LjcgNi43IDAgMDEtLjQxNi0yLjM5MSA2LjUxNCA2LjUxNCAwIDAxLjQzNS0yLjQzMSA0Ljk2MSA0Ljk2MSAwIDAxMS4yNzYtMS44NDggNS43OTMgNS43OTMgMCAwMTIuMDc2LTEuMTc1IDguOTg2IDguOTg2IDAgMDEyLjgzMi0uNDEyIDguODY1IDguODY1IDAgMDEyLjgyMy40MTcgNS43NTIgNS43NTIgMCAwMTIuMDcxIDEuMTgzIDUuMDEyIDUuMDEyIDAgMDExLjI3MiAxLjg1MiA2LjQ2MyA2LjQ2MyAwIDAxLjQzNSAyLjQxNSA2LjQ1OSA2LjQ1OSAwIDAxLS40NDkgMi40NDggNS4yMjkgNS4yMjkgMCAwMS0xLjMgMS44ODUgNS44NzcgNS44NzcgMCAwMS0yLjA4IDEuMjA3IDguNTc2IDguNTc2IDAgMDEtMi43OTEuNDI0em0uMDE5LTEwLjU1OGE2LjEzNSA2LjEzNSAwIDAwLTIuMDkuMzI3IDQuMDIyIDQuMDIyIDAgMDAtMS41LjkzIDMuODM3IDMuODM3IDAgMDAtLjkgMS40NTIgNS42ODkgNS42ODkgMCAwMC0uMyAxLjg4NSA1LjYxOSA1LjYxOSAwIDAwLjMwOCAxLjkgMy45ODIgMy45ODIgMCAwMDIuNCAyLjQ1NiA1LjY4OCA1LjY4OCAwIDAwMi4wNTcuMzQ3IDUuOTY0IDUuOTY0IDAgMDAyLjE1MS0uMzUxIDMuOTUyIDMuOTUyIDAgMDAxLjQ4NS0uOTc2IDMuOTI3IDMuOTI3IDAgMDAuODYtMS40ODggNi4xNTUgNi4xNTUgMCAwMC4yNzktMS44ODUgNS41MjYgNS41MjYgMCAwMC0uMzA3LTEuODg1IDMuOTQzIDMuOTQzIDAgMDAtLjkwOC0xLjQ1MiA0LjAzNyA0LjAzNyAwIDAwLTEuNDktLjkzIDUuOTU3IDUuOTU3IDAgMDAtMi4wNDUtLjMzem04LjExNCA0LjU5M2E2LjY3NiA2LjY3NiAwIDAxLjQyMS0yLjQzMSA0LjgyMiA0LjgyMiAwIDAxMS4yNTctMS44NDggNS43MTEgNS43MTEgMCAwMTIuMDc2LTEuMTc1IDkuMTE4IDkuMTE4IDAgMDEyLjg3NS0uNDEyIDEwLjk3MyAxMC45NzMgMCAwMTIuMTU2LjE4OCA2LjE4MSA2LjE4MSAwIDAxMS42MDguNTM4IDQuMjMzIDQuMjMzIDAgMDExLjE1My44NTMgNS4xMjMgNS4xMjMgMCAwMS44IDEuMTNsLTEuNzIyLjQ0MWEzLjc0NCAzLjc0NCAwIDAwLS41OTEtLjc3MSAzLjE0OCAzLjE0OCAwIDAwLS44MzMtLjU5MiA0LjcgNC43IDAgMDAtMS4xMzktLjM4IDcuMzY5IDcuMzY5IDAgMDAtMS40OC0uMTM1IDYuMTIzIDYuMTIzIDAgMDAtMi4xLjMyNyAzLjg4IDMuODggMCAwMC0xLjQ4MS45MzEgMy44MDcgMy44MDcgMCAwMC0uODc1IDEuNDUyIDUuODMzIDUuODMzIDAgMDAtLjI4OCAxLjg4NSA1LjUzMiA1LjUzMiAwIDAwLjMxMiAxLjkgNC4wNjEgNC4wNjEgMCAwMC45MjcgMS40ODUgNC4yIDQuMiAwIDAwMS41MjQuOTY4IDUuOTM3IDUuOTM3IDAgMDAyLjExNC4zNDcgOC40OTIgOC40OTIgMCAwMDEuNDQ2LS4xMTQgNy42NzUgNy42NzUgMCAwMDEuMi0uMyA1LjkxMSA1LjkxMSAwIDAwLjk0MS0uNDA4IDQuMzY2IDQuMzY2IDAgMDAuNjgxLS40NTN2LTIuMDcxaC0zLjk4MnYtMS4zMDZoNS42NDV2My45NjZhNi44MzcgNi44MzcgMCAwMS0xLjA0NS43NDYgNy45MjggNy45MjggMCAwMS0xLjM0Ny42MjUgOS43OTQgOS43OTQgMCAwMS0xLjYzNi40MjQgMTEuMSAxMS4xIDAgMDEtMS45LjE1NSA4LjgyMSA4LjgyMSAwIDAxLTIuOTQxLS40NDUgNS43ODIgNS43ODIgMCAwMS0yLjA5NS0xLjI0IDUuMDkyIDUuMDkyIDAgMDEtMS4yNi0xLjg4OSA2LjYgNi42IDAgMDEtLjQyMS0yLjM5MSIgZmlsbD0iI2MzMWUxYyIvPjxwYXRoIGQ9Ik0wIDYyLjMxOGgxNTIuMzk1VjBIMHoiIGZpbGw9Im5vbmUiLz48ZyBjbGlwLXBhdGg9InVybCgjYSkiIGZpbGw9IiNjMzFlMWMiPjxwYXRoIGQ9Ik0xMjMuNjQgNjIuMTU5aDEuODA2di0xMS41aC0xLjgwNnptNS4xODIgMHYtMTEuNWgxMC4xMDh2MS4yNzNoLTguM3YzLjY4OGg3LjczM3YxLjI1NmgtNy43MzV2NC4wMDZoOC42OTR2MS4yNzd6bTIzLjM1Ni0zLjE3N2EyLjggMi44IDAgMDEtLjMyNiAxLjMzOCAyLjkwOSAyLjkwOSAwIDAxLTEuMDA3IDEuMDU3IDUuNDY4IDUuNDY4IDAgMDEtMS43MTcuNjkzIDEwLjU4NyAxMC41ODcgMCAwMS0yLjQ1NC4yNDkgOC4yNDYgOC4yNDYgMCAwMS0zLjg3Ny0uNzUgMy40IDMuNCAwIDAxLTEuNzY4LTIuMTcybDEuNzUtLjNhMi41NTMgMi41NTMgMCAwMC40MDcuODE2IDIuMzU1IDIuMzU1IDAgMDAuNzQyLjYzMiA0LjA2NSA0LjA2NSAwIDAwMS4xNTguNDEyIDguMDY1IDguMDY1IDAgMDAxLjY1NS4xNDcgOC41MjQgOC41MjQgMCAwMDEuNDc1LS4xMTYgNC4xMyA0LjEzIDAgMDAxLjE1My0uMzYzIDEuOTkxIDEuOTkxIDAgMDAuNzUyLS42MzcgMS41ODggMS41ODggMCAwMC4yNjktLjkyNiAxLjM2NCAxLjM2NCAwIDAwLS4zLS45MTQgMi4yIDIuMiAwIDAwLS44MzYtLjU3OSA2Ljk3OSA2Ljk3OSAwIDAwLTEuMjg0LS4zODFxLS43NDctLjE1NS0xLjY1NS0uMzM0LS41NTgtLjEwNi0xLjEyMS0uMjMzYTEwLjQgMTAuNCAwIDAxLTEuMDc4LS4zIDYuODg4IDYuODg4IDAgMDEtLjk2OS0uNDEyIDMuMTYgMy4xNiAwIDAxLS43ODUtLjU2NyAyLjQ0OSAyLjQ0OSAwIDAxLS41Mi0uNzY3IDIuNTE0IDIuNTE0IDAgMDEtLjE4OS0xLjAxMSAyLjQ5NCAyLjQ5NCAwIDAxLjM4My0xLjQgMi45NDYgMi45NDYgMCAwMTEuMDY0LS45NTggNS4zIDUuMyAwIDAxMS42MDgtLjU0NyAxMS4wMTkgMTEuMDE5IDAgMDEyLS4xNzEgMTEuNTI1IDExLjUyNSAwIDAxMi4xMjEuMTY3IDUgNSAwIDAxMS40ODUuNSAyLjk2NiAyLjk2NiAwIDAxLjk2OS44MjggNC4xMTUgNC4xMTUgMCAwMS41ODIgMS4xNDZsLTEuNzc4LjI2OWEyLjQxMSAyLjQxMSAwIDAwLS4zODMtLjc0MyAyLjAzOCAyLjAzOCAwIDAwLS42NTctLjU0NiAzLjQ2NyAzLjQ2NyAwIDAwLS45ODgtLjMzNCA3LjE4IDcuMTggMCAwMC0xLjM2Ni0uMTE0IDcuMTE5IDcuMTE5IDAgMDAtMS41NTYuMTQzIDMuMTkzIDMuMTkzIDAgMDAtMS4wMDguMzg5IDEuNDc5IDEuNDc5IDAgMDAtLjU0OC41NzUgMS41NzIgMS41NzIgMCAwMC0uMTY2LjcxNCAxLjIxNSAxLjIxNSAwIDAwLjMuODQ1IDIuMjg4IDIuMjg4IDAgMDAuODA5LjU1IDYuNDYzIDYuNDYzIDAgMDAxLjE4Mi4zNjdxLjY3Mi4xNDcgMS40MjguMjk0LjYxNS4xMjIgMS4yMjUuMjQ5YTExLjk2IDExLjk2IDAgMDExLjE2OC4zIDcuNjkxIDcuNjkxIDAgMDExLjA0NS40MTIgMy4zMyAzLjMzIDAgMDEuODQ2LjU4IDIuNDc3IDIuNDc3IDAgMDEuNTYzLjgwNyAyLjcxNiAyLjcxNiAwIDAxLjIgMS4wOTQiLz48L2c+PC9zdmc+" alt="S3 Technologies"></div>
   <nav><span class="active">Offer studio</span></nav>
   <span class="spacer"></span>
-  <button class="compile" onclick="compile()">⟳ Refresh preview</button>
-  <button class="approve" id="approveBtn" onclick="approve()">Approve &amp; send to client →</button>
+  <button class="ghost" id="refreshBtn" onclick="compile()" style="display:none">⟳ Refresh preview</button>
+  <button class="approve" id="approveBtn" onclick="approve()" style="display:none">Approve &amp; send to client →</button>
 </header>
 
 <div class="sub">
-  <span class="h" id="docTitle">Offer</span>
+  <span class="h" id="docTitle">Meeting</span>
   <span class="client" id="docClient"></span>
 </div>
 
 <div id="app" class="wrap">
   <div class="pane edit">
-    <fieldset><legend>Client</legend>
-      <label>Company</label><input id="f_company">
-      <label>Contact name</label><input id="f_contactName">
-      <label>Contact email</label><input id="f_contactEmail">
-    </fieldset>
+    <!-- STEP 1: review the meeting -->
+    <div id="reviewView">
+      <fieldset><legend>Client</legend>
+        <label>Company</label><input id="f_company">
+        <label>Contact name</label><input id="f_contactName">
+        <label>Contact email</label><input id="f_contactEmail">
+      </fieldset>
+      <fieldset><legend>Meeting summary</legend>
+        <div class="summary" id="summaryText">—</div>
+        <details><summary id="transToggle">Show full transcript</summary>
+          <div class="transcript" id="transcriptText"></div>
+        </details>
+      </fieldset>
+      <button class="gen" id="genBtn" onclick="generate()">✦ Generate offer</button>
+      <div class="hint err" id="genErr" style="text-align:center"></div>
+    </div>
 
-    <fieldset class="ai-box">
-      <legend>✦ Revise the offer</legend>
-      <p class="hint" style="margin-top:0">Just describe what you want to change — in plain words.
-      The assistant figures out where it goes (title, summary, objectives, scope, timeline, pricing,
-      team, terms…) and keeps everything else intact. The preview updates so you can review before sending.</p>
-      <textarea id="ai_instructions" placeholder="e.g. Lower the total by 10%, add a 2-week training phase, and make the summary warmer."></textarea>
-      <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
-        <button class="ai-apply" id="aiBtn" onclick="applyAI()">✦ Apply changes</button>
-        <span class="hint" id="aiStatus" style="margin-top:0"></span>
-      </div>
-    </fieldset>
+    <!-- STEP 2: edit the offer -->
+    <div id="offerView" style="display:none">
+      <fieldset><legend>Client</legend>
+        <label>Company</label><input id="o_company">
+        <label>Contact name</label><input id="o_contactName">
+        <label>Contact email</label><input id="o_contactEmail">
+      </fieldset>
+      <fieldset class="ai-box"><legend>✦ Revise the offer</legend>
+        <p class="hint" style="margin-top:0">Describe any change in plain words — title, summary, objectives, scope, timeline, pricing, team, terms. The preview updates so you can review before sending.</p>
+        <textarea id="ai_instructions" placeholder="e.g. Lower the total by 10%, add a 2-week training phase, warmer tone."></textarea>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
+          <button class="ai-apply" id="aiBtn" onclick="applyAI()">✦ Apply changes</button>
+          <span class="hint" id="aiStatus" style="margin-top:0"></span>
+        </div>
+      </fieldset>
+      <details><summary>Show meeting summary &amp; transcript</summary>
+        <div class="summary" id="summaryText2" style="margin-top:8px"></div>
+        <div class="transcript" id="transcriptText2" style="margin-top:8px"></div>
+      </details>
+    </div>
   </div>
 
   <div class="pane out">
-    <div class="sheet"><iframe id="preview"></iframe></div>
+    <div id="placeholder" class="placeholder"><div class="big">📄</div>The offer will appear here once you click <b>✦ Generate offer</b>.</div>
+    <div class="sheet" id="sheet" style="display:none"><iframe id="preview"></iframe></div>
   </div>
 </div>
 
-<div class="stale" id="staleBadge">Client details changed — click ⟳ Refresh preview</div>
-
 <div id="doneScreen" class="done">
-  <div class="mark">S3</div>
-  <h1>Offer approved</h1>
-  <p>It's been sent back to the workflow — the branded PDF is rendering and the
-  client will receive a signable document shortly. You can close this tab.</p>
+  <div class="mark">S3</div><h1>Offer approved</h1>
+  <p>It's been sent back to the workflow — the branded PDF is rendering and the client will receive a signable document shortly. You can close this tab.</p>
 </div>
 
 <script>
 const AI_URL_DEFAULT = "https://ytiemani.app.n8n.cloud/webhook/ai-edit";
-let DATA = null, RESUME_URL = null, AI_URL = AI_URL_DEFAULT;
+let DATA = null, TRANSCRIPT = "", SUMMARY = "", RESUME_URL = null, AI_URL = AI_URL_DEFAULT, STATE = "review";
 
 async function boot(){
+  let payload = {};
   if(location.hash.length>1){
-    try{
-      const payload = JSON.parse(atob(decodeURIComponent(location.hash.slice(1)).replace(/-/g,'+').replace(/_/g,'/')));
-      DATA = payload.draft || payload;
-      RESUME_URL = payload.resumeUrl || null;
-      if(payload.aiUrl) AI_URL = payload.aiUrl;
-    }catch(e){ DATA = blank(); }
-  } else {
-    try{ DATA = await (await fetch('sample-offer.json')).json(); }
-    catch(e){ DATA = blank(); }
+    try{ payload = JSON.parse(atob(decodeURIComponent(location.hash.slice(1)).replace(/-/g,'+').replace(/_/g,'/'))); }catch(e){}
   }
-  fillClient(); compile();
+  RESUME_URL = payload.resumeUrl || null;
+  if(payload.aiUrl) AI_URL = payload.aiUrl;
+  TRANSCRIPT = payload.transcript || "";
+  SUMMARY = payload.summary || "";
+  if(payload.draft || payload.offer){
+    // already-generated offer (back-compat) → go straight to edit step
+    DATA = payload.draft || payload.offer; enterOffer();
+  } else {
+    // review step: client + summary + transcript, then Generate
+    DATA = { client: payload.client || {}, meeting:{ summary:SUMMARY, transcript:TRANSCRIPT } };
+    if(!TRANSCRIPT && !SUMMARY){ try{ const s=await (await fetch('sample-offer.json')).json(); DATA=s; SUMMARY=(s.meeting&&s.meeting.summary)||''; TRANSCRIPT=''; }catch(e){} }
+    enterReview();
+  }
 }
-function blank(){ return { client:{company:"",contactName:"",contactEmail:""}, meeting:{}, offer:{title:"",executiveSummary:"",objectives:[],scope:[],timeline:[],pricing:{currency:"EUR",lineItems:[],total:0},team:[]} }; }
 
-function fillClient(){
-  const c = DATA.client || {};
+function v(id,val){ const e=document.getElementById(id); if(e) e.value = val==null?'':val; }
+function val(id){ const e=document.getElementById(id); return e?e.value:''; }
+
+function enterReview(){
+  STATE='review';
+  document.getElementById('reviewView').style.display='block';
+  document.getElementById('offerView').style.display='none';
+  document.getElementById('approveBtn').style.display='none';
+  document.getElementById('refreshBtn').style.display='none';
+  document.getElementById('placeholder').style.display='block';
+  document.getElementById('sheet').style.display='none';
+  const c=DATA.client||{};
   v('f_company',c.company); v('f_contactName',c.contactName); v('f_contactEmail',c.contactEmail);
-  ['f_company','f_contactName','f_contactEmail'].forEach(id=>document.getElementById(id).addEventListener('input',markStale));
+  document.getElementById('summaryText').textContent = SUMMARY || 'No summary yet.';
+  document.getElementById('transcriptText').textContent = TRANSCRIPT || '(no transcript provided)';
+  document.getElementById('docTitle').textContent='Review meeting';
+  document.getElementById('docClient').textContent = c.company?('· '+c.company):'';
 }
-function v(id,val){ document.getElementById(id).value = val==null?'':val; }
-function val(id){ return document.getElementById(id).value; }
+
+function enterOffer(){
+  STATE='offer';
+  document.getElementById('reviewView').style.display='none';
+  document.getElementById('offerView').style.display='block';
+  document.getElementById('approveBtn').style.display='inline-block';
+  document.getElementById('refreshBtn').style.display='inline-block';
+  document.getElementById('placeholder').style.display='none';
+  document.getElementById('sheet').style.display='block';
+  const c=DATA.client||{};
+  v('o_company',c.company); v('o_contactName',c.contactName); v('o_contactEmail',c.contactEmail);
+  ['o_company','o_contactName','o_contactEmail'].forEach(id=>{const e=document.getElementById(id); if(e&&!e._b){e._b=1; e.addEventListener('input',()=>{}); }});
+  document.getElementById('summaryText2').textContent = SUMMARY||'';
+  document.getElementById('transcriptText2').textContent = TRANSCRIPT||'';
+  compile();
+}
 
 function collectClient(){
   DATA.client = DATA.client || {};
-  DATA.client.company = val('f_company');
-  DATA.client.contactName = val('f_contactName');
-  DATA.client.contactEmail = val('f_contactEmail');
+  if(STATE==='offer'){
+    DATA.client.company=val('o_company'); DATA.client.contactName=val('o_contactName'); DATA.client.contactEmail=val('o_contactEmail');
+  } else {
+    DATA.client.company=val('f_company'); DATA.client.contactName=val('f_contactName'); DATA.client.contactEmail=val('f_contactEmail');
+  }
+}
+
+async function generate(){
+  collectClient();
+  const btn=document.getElementById('genBtn'), err=document.getElementById('genErr');
+  btn.disabled=true; btn.textContent='✦ Generating the offer…'; err.textContent='';
+  try{
+    const res = await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'generate', client:DATA.client, transcript:TRANSCRIPT, summary:SUMMARY})});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    if(!data.offer) throw new Error('No offer returned');
+    DATA = data.offer; if(!DATA.meeting) DATA.meeting={}; DATA.meeting.transcript=TRANSCRIPT; DATA.meeting.summary=SUMMARY;
+    enterOffer();
+  }catch(e){ err.textContent='Could not generate: '+e.message; btn.disabled=false; btn.textContent='✦ Generate offer'; }
 }
 
 function compile(){
@@ -154,47 +207,35 @@ function compile(){
   document.getElementById('preview').srcdoc = window.OfferRenderer.render(DATA);
   document.getElementById('docTitle').textContent = (DATA.offer&&DATA.offer.title)||'Offer';
   document.getElementById('docClient').textContent = (DATA.client&&DATA.client.company)?('· '+DATA.client.company):'';
-  hideStale();
 }
-function markStale(){ document.getElementById('staleBadge').style.display='block'; }
-function hideStale(){ document.getElementById('staleBadge').style.display='none'; }
 
-// Plain-language edits → wf-3 (Opus) applies them → revised offer back into the preview.
 async function applyAI(){
-  const instr = document.getElementById('ai_instructions').value.trim();
-  const st = document.getElementById('aiStatus');
-  if(!instr){ st.className='hint'; st.textContent='Type what you want to change first.'; return; }
+  const instr=document.getElementById('ai_instructions').value.trim();
+  const st=document.getElementById('aiStatus');
+  if(!instr){ st.className='hint'; st.textContent='Type what to change first.'; return; }
   collectClient();
-  const btn=document.getElementById('aiBtn');
-  btn.disabled=true; st.className='hint'; st.textContent='✦ Working…';
+  const btn=document.getElementById('aiBtn'); btn.disabled=true; st.className='hint'; st.textContent='✦ Working…';
   try{
-    const res = await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({action:'revise', offer:DATA, instructions:instr})});
+    const res=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'revise',offer:DATA,instructions:instr})});
     if(!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
-    if(!data.offer) throw new Error('No revised offer returned');
-    DATA = data.offer;
-    fillClientQuiet(); compile();
-    document.getElementById('ai_instructions').value='';
-    st.textContent='Done ✓ — review the preview, then approve or ask for more changes.';
+    const data=await res.json(); if(!data.offer) throw new Error('No revised offer');
+    DATA=data.offer; v('o_company',(DATA.client||{}).company); v('o_contactName',(DATA.client||{}).contactName); v('o_contactEmail',(DATA.client||{}).contactEmail);
+    compile(); document.getElementById('ai_instructions').value='';
+    st.textContent='Done ✓ — review, then approve or ask for more.';
   }catch(e){ st.className='hint err'; st.textContent='Could not apply: '+e.message; }
   finally{ btn.disabled=false; }
 }
-function fillClientQuiet(){ const c=DATA.client||{}; v('f_company',c.company); v('f_contactName',c.contactName); v('f_contactEmail',c.contactEmail); }
 
 async function approve(){
-  if(!RESUME_URL){ alert('This studio was opened without a workflow link, so there is nothing to submit. Open it from the review email.'); return; }
+  if(!RESUME_URL){ alert('Opened without a workflow link — nothing to submit. Open it from the review email.'); return; }
   collectClient();
   const btn=document.getElementById('approveBtn'); btn.disabled=true; btn.textContent='Sending…';
   try{
-    const html = window.OfferRenderer.render(DATA);
-    const res = await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({action:'approve', offer:DATA, html, resumeUrl:RESUME_URL})});
+    const html=window.OfferRenderer.render(DATA);
+    const res=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',offer:DATA,html,resumeUrl:RESUME_URL})});
     if(!res.ok) throw new Error('HTTP '+res.status);
-    document.getElementById('app').style.display='none';
-    document.querySelector('.sub').style.display='none';
-    document.getElementById('approveBtn').style.display='none';
-    document.querySelector('.compile').style.display='none';
+    document.getElementById('app').style.display='none'; document.querySelector('.sub').style.display='none';
+    document.getElementById('approveBtn').style.display='none'; document.getElementById('refreshBtn').style.display='none';
     document.getElementById('doneScreen').style.display='block';
   }catch(e){ alert('Submit failed: '+e.message); btn.disabled=false; btn.textContent='Approve & send to client →'; }
 }
