@@ -1,0 +1,16 @@
+{
+  "enabledMcpjsonServers": ["codebase-memory-mcp"],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/install-codebase-memory-mcp.sh || true",
+            "timeout": 180
+          }
+        ]
+      }
+    ]
+  }
+}
